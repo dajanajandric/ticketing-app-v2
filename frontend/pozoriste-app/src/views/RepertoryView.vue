@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import { API_BASE_URL } from "@/config";
+
 export default {
   name: "RepertoryView",
   data() {
@@ -75,7 +77,7 @@ export default {
   methods: {
     async fetchPerformances() {
       try {
-        const response = await fetch("http://localhost:8084/performances");
+        const response = await fetch(`${API_BASE_URL}/performances`);
         if (!response.ok)
           throw new Error("Greška prilikom učitavanja repertoara.");
         this.performances = await response.json();

@@ -273,6 +273,7 @@
 
 <script>
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 export default {
   name: "SpectatorsList",
@@ -313,7 +314,7 @@ export default {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get("http://localhost:8084/spectators");
+        const response = await axios.get(`${API_BASE_URL}/spectators`);
         this.spectators = response.data;
       } catch (err) {
         console.error("Greška prilikom učitavanja gledalaca:", err);
@@ -333,7 +334,7 @@ export default {
           emailAddress: this.newSpectator.emailAddress || null,
           ticketAgent: { id: "r1" },
         };
-        await axios.post("http://localhost:8084/spectators", spectatorData);
+        await axios.post(`${API_BASE_URL}/spectators`, spectatorData);
         this.resetForm();
         await this.fetchSpectators();
         alert("Gledalac je uspešno dodat!");
@@ -357,7 +358,7 @@ export default {
           emailAddress: this.editingSpectator.emailAddress || null,
         };
         await axios.patch(
-          `http://localhost:8084/spectators/${this.editingSpectator.jmbg}`,
+          `${API_BASE_URL}/spectators/${this.editingSpectator.jmbg}`,
           updateData
         );
         this.cancelEdit();
@@ -372,7 +373,7 @@ export default {
       if (!confirm("Da li ste sigurni da želite da obrišete ovog gledaoca?"))
         return;
       try {
-        await axios.delete(`http://localhost:8084/spectators/${jmbg}`);
+        await axios.delete(`${API_BASE_URL}/spectators/${jmbg}`);
         await this.fetchSpectators();
         alert("Gledalac je uspešno obrisan!");
       } catch (err) {

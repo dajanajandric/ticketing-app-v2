@@ -60,6 +60,7 @@
 
 <script>
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 export default {
   name: "LoginView",
@@ -83,7 +84,7 @@ export default {
         params.append("password", this.password);
 
         const response = await axios.post(
-          "http://localhost:8084/ticket-agents/login",
+          `${API_BASE_URL}/ticket-agents/login`,
           params,
           { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
         );

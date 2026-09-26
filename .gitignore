@@ -1,11 +1,12 @@
-# Backend (Spring Boot / Maven)
-backend/demo/target/
-backend/demo/bin/
-backend/demo/.settings/
-backend/demo/.classpath
-backend/demo/.project
-backend/demo/.factorypath
-backend/demo/src/main/resources/application-local.properties
+# Backend / services (Spring Boot / Maven) - applies to backend/demo and every
+# service under services/*
+**/target/
+**/bin/
+**/.settings/
+**/.classpath
+**/.project
+**/.factorypath
+**/src/main/resources/application-local.properties
 
 # Frontend (Node)
 frontend/pozoriste-app/node_modules/

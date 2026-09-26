@@ -157,6 +157,7 @@
 
 <script>
 import axios from "axios";
+import { API_BASE_URL } from "@/config";
 
 export default {
   name: "TicketPurchase",
@@ -198,7 +199,7 @@ export default {
     },
     async fetchSpectators() {
       try {
-        const res = await axios.get("http://localhost:8084/spectators");
+        const res = await axios.get(`${API_BASE_URL}/spectators`);
         this.spectators = res.data;
       } catch (err) {
         console.error("Greška prilikom učitavanja gledalaca:", err);
@@ -206,7 +207,7 @@ export default {
     },
     async fetchPlays() {
       try {
-        const res = await axios.get("http://localhost:8084/plays");
+        const res = await axios.get(`${API_BASE_URL}/plays`);
         this.plays = res.data;
       } catch (err) {
         console.error("Greška prilikom učitavanja predstava:", err);
@@ -216,7 +217,7 @@ export default {
       if (!this.selectedPlay || !this.selectedDate) return;
       try {
         const res = await axios.get(
-          `http://localhost:8084/performances/by-play/${this.selectedPlay}`
+          `${API_BASE_URL}/performances/by-play/${this.selectedPlay}`
         );
         this.performances = res.data.filter(
           (perf) => perf.date === this.selectedDate
@@ -230,7 +231,7 @@ export default {
       if (!performanceId) return;
       try {
         const res = await axios.post(
-          "http://localhost:8084/tickets/performance/available-seats",
+          `${API_BASE_URL}/tickets/performance/available-seats`,
           { id: performanceId }
         );
         this.availableSeats = res.data;
@@ -268,11 +269,11 @@ export default {
           id: this.generateTicketId(),
           price: "300 RSD",
           numberOfSeatInAuditorium: this.selectedSeat.toString(),
-          spectator: { jmbg: this.selectedSpectator },
+          spectatorId: this.selectedSpectator,
           performance: { id: this.selectedPerformance },
-          ticketAgent: { id: "r1" },
+          ticketAgentId: "r1",
         };
-        await axios.post("http://localhost:8084/tickets", ticketData);
+        await axios.post(`${API_BASE_URL}/tickets`, ticketData);
         this.purchaseSuccess = true;
         setTimeout(this.resetForm, 1500);
       } catch (err) {

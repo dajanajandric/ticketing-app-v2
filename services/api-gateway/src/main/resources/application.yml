@@ -1,0 +1,18 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: users-service
+            uri: ${USERS_SERVICE_URL:http://localhost:8081}
+            predicates:
+              - Path=/spectators/**,/ticket-agents/**
+          - id: ticketing-service
+            uri: ${TICKETING_SERVICE_URL:http://localhost:8082}
+            predicates:
+              - Path=/tickets/**,/performances/**,/plays/**,/repertory/**
