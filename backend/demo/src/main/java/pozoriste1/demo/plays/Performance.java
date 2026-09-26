@@ -2,6 +2,8 @@ package pozoriste1.demo.plays;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -59,6 +61,8 @@ public class Performance {
 		this.play = play;
 	}
 
+	// Repertory -> performances -> repertories -> ... bi se serijalizovalo u krug
+	@JsonIgnore
 	public Set<Repertory> getRepertoari() {
 		return repertories;
 	}

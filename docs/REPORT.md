@@ -138,3 +138,48 @@ Autentifikacija ide preko ugrađenog `GITHUB_TOKEN`-a (`permissions: packages: w
 Image ne sadrži nikakvu konfiguraciju okruženja: baza (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`), adresa users-service-a (`USERS_SERVICE_URL`) i rute gateway-a (`USERS_SERVICE_URL`, `TICKETING_SERVICE_URL`) čitaju se iz env varijabli, pa isti image radi lokalno, u docker-compose-u ili na serveru. Pravi *deploy* (pokretanje image-a na serveru — Continuous **Deployment**) je van obima projekta; isporuka spremnog, verzionisanog image-a u registry je granica koju pipeline pokriva.
 
 *(sekcije za merenje performansi i fuzz testiranje dodaju se kako se implementiraju)*
+
+## 8. Testni podaci
+
+Za mjerenje performansi sve tri baze (`pozoriste`, `users_db`, `ticketing_db`) su napunjene **istim** podacima, generisanim skriptom `scripts/seed/generate_seed.py` (fiksan random seed, pa je izlaz uvijek isti). Repertoar je preuzet sa sajta Srpskog narodnog pozorišta (prodaja.snp.org.rs, septembar–decembar 2026): 28 predstava, 81 izvođenje na 3 scene (Jovan Đorđević 600 mjesta, Pera Dobrinović 400, Kamerna scena 120), 4 mjesečna repertoara. Režiseri, scenografi, 5 blagajnika i 300 gledalaca su izmišljeni (e-mail adrese na `example.com`). Po izvođenju je prodato 5–35% mjesta, ukupno 4733 ulaznice.
+
+Skripte: `seed_users.sql` → `users_db`, `seed_ticketing.sql` → `ticketing_db`, `seed_monolith.sql` → `pozoriste`. Sve koriste `ON CONFLICT DO NOTHING`, pa se mogu pokrenuti više puta. Stari demo podaci monolita su ostali u bazi (nekoliko redova više u odnosu na servise, zanemarljivo za mjerenje).
+
+**Uočena razlika u šemi:** monolit ima ograničenja dužine kolona (npr. `sala_naziv varchar(20)`, `radnik_password varchar(20)`), a servisi, čije tabele pravi Hibernate (`ddl-auto=update`), imaju `varchar(255)`. Ovo je relevantno za fuzz testiranje: isti predugački unos monolit odbija, a servisi prihvataju.
+
+## 9. Mjerenje performansi (prije / poslije podjele)
+
+**Postavka.** Alat k6 (`perf/benchmark.js`, pokretanje `perf/run.sh monolith|services`). Sve radi lokalno na istom računaru: monolit (8084) i servisi + gateway (8081/8082/8090) kao obični `java -jar` procesi sa `-Xmx512m`, ista Postgres instanca, isti testni podaci (sekcija 8). Mail za potvrdu kupovine ide na lokalni Mailpit (Docker) umjesto na Gmail, da mjerenje ne zavisi od interneta. Prije svakog mjerenja brišu se karte iz prethodnih pokretanja i radi se zagrijavanje JVM-a od 15 s koje se ne broji. Klijent je za monolit direktno na 8084, a za servise preko API Gateway-a (8090), kao što bi išao frontend.
+
+Dva scenarija po 60 s:
+- **pregled** – 20 istovremenih korisnika nasumično čitaju: predstave, izvođenja, izvođenja jedne predstave, mjesečni repertoar, gledaoca po JMBG-u, slobodna mjesta.
+- **kupovina** – 5 blagajnika: slobodna mjesta za nasumično izvođenje → kupovina karte (`POST /tickets`). Kod servisa kupovina uključuje 2 sinhrona REST poziva ticketing → users (provjera blagajnika i gledaoca).
+
+Izvedena su 3 kruga naizmjenično (M→S, S→M, M→S); prikazani su prosjeci ta 3 kruga.
+
+**Ispravka prije mjerenja.** Prvo (preliminarno) mjerenje otkrilo je beskonačnu rekurziju u JSON-u: `Performance.repertoari` ↔ `Repertory.performances`. Jackson je išao u krug do dubine 1000 i pucao (klijent dobije 200 i odsječen odgovor; >10.000 puta u logu i monolita i servisa). Jedna karta (`GET /tickets/{id}`) imala je 113 KB. Greška je postojala u originalnom monolitu. Ispravljena je sa `@JsonIgnore` na `Performance.getRepertoari()` **u oba projekta**, pa je poređenje i dalje fer. Poslije ispravke karta ima < 1 KB, a u logovima nema grešaka.
+
+**Rezultati** (vrijeme odziva u ms, monolit → servisi):
+
+| Zahtjev | Prosjek | Medijana | p95 |
+|---|---|---|---|
+| Pregled – ukupno | 36.2 → 39.9 | 26.7 → 37.0 | 81.6 → 75.0 |
+| `GET /plays` | 26.0 → 37.5 | 21.4 → 33.8 | 54.6 → 73.3 |
+| `GET /performances/by-play/{id}` | 20.3 → 37.0 | 16.6 → 33.6 | 47.8 → 73.2 |
+| `GET /repertory/{id}` | 21.2 → 36.9 | 16.3 → 33.7 | 51.4 → 72.1 |
+| `GET /spectators/{jmbg}` | 18.5 → 37.1 | 14.5 → 33.6 | 46.3 → 71.6 |
+| `GET /performances` | 69.0 → 47.2 | 62.4 → 41.9 | 106.3 → 78.5 |
+| `POST /tickets/performance/available-seats` | 40.2 → 25.6 | 35.1 → 19.1 | 75.8 → 65.8 |
+| `POST /tickets` (kupovina) | 60.7 → 50.9 | 57.4 → 44.1 | 89.4 → 85.1 |
+
+Propusnost: pregled ~510 → ~493 zahtjeva/s (−3%), kupovina ~54 → ~84 karte/s. Greške: 0 u mjerenjima (2 greške gateway-a desile su se tokom zagrijavanja, vidi dolje).
+
+**Tumačenje.**
+- **Jednostavna čitanja su kod servisa sporija za ~17 ms (medijana)** – to je cijena dodatnog mrežnog skoka kroz API Gateway (klijent → gateway → servis). Za male odgovore ta cijena dominira.
+- **Kupovina i slobodna mjesta su kod servisa brži**, iako kupovina ima 2 dodatna REST poziva. Najvjerovatniji razlog: u monolitu `Ticket` ima JPA relacije (`@ManyToOne`) na `TicketAgent` i `Spectator`, pa svako učitavanje karata jednog izvođenja (provjera zauzetog mjesta) povlači i blagajnike i gledaoce. U ticketing-service su to obične kolone sa ID-em, pa je upit lakši. Dakle, razdvajanje modela podataka (posljedica podjele baza) ovdje je dobilo više nego što su koštali mrežni pozivi.
+- **`GET /performances` je u monolitu sporiji** i zato što monolit ima 13 izvođenja više (stari demo podaci, sekcija 8) i veći JSON (11,2 KB naspram 9,8 KB) – ovaj red nije potpuno uporediv.
+- Rep raspodjele (p95) je kod servisa jednak ili bolji jer se opterećenje dijeli na dva procesa (dva JVM-a, dva pool-a konekcija).
+
+**Uočen problem na gateway-u.** Pod opterećenjem gateway povremeno baci `ResourceAccessException` / `NullPointerException` iz JDK `HttpClient`-a (1 put u preliminarnom mjerenju, 2 puta tokom zagrijavanja, od ukupno > 100.000 zahtjeva). Klijent tada dobije 500. Moguće rješenje: prebaciti Spring Cloud Gateway MVC na drugi HTTP klijent (npr. Apache HttpClient 5) ili dodati retry filter na gateway-u za idempotentne GET zahtjeve.
+
+**Ograničenja.** Sve radi na jednom računaru (servisi se ne takmiče za mrežu, ali se takmiče za CPU), mjerenje traje kratko (3 × 60 s po scenariju), a opterećenje je umjereno (20 + 5 korisnika). Rezultati pokazuju trend, ne apsolutne brojke za produkciju.

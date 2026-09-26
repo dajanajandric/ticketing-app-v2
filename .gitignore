@@ -22,3 +22,6 @@ frontend/pozoriste-app/.env.*.local
 # OS
 .DS_Store
 Thumbs.db
+
+# k6 / lokalno pokretanje
+perf/logs/
