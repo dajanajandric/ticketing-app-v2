@@ -269,3 +269,21 @@ Preostali nalazi nisu kvarovi robusnosti:
 - `POST /repertory/{id}/performances/{id}` vraća prazan 200 bez `Content-Type`. Kozmetički nalaz, ponašanje preuzeto iz monolita.
 
 Users-service je u drugom krugu sporiji (22 s → 1,5 min) zato što fuzzer sada dolazi dublje: zahtjevi prolaze validaciju, a `DELETE /spectators` pokreće sagu. Ticketing je brži (28 → 6 min) jer loši ID-evi više ne prolaze kroz retry prema users-service-u.
+
+## 12. Testovi servisa
+
+Svaki servis ima svoje testove, koje njegov CI/CD pipeline pokreće (`./mvnw -B verify`) nezavisno od drugog servisa. Testovi ne traže bazu ni RabbitMQ: logika se testira unit testovima sa Mockito mockovima, a HTTP sloj sa `@WebMvcTest` (samo kontroler, validacija, handler grešaka i filter). Zato rade i u GitHub Actions bez dodatnih servisa.
+
+| Servis | Test klasa | Šta provjerava | Testova |
+|---|---|---|---|
+| users-service | `SpectatorDeletionSagaTest` | saga: pokretanje → DELETION_PENDING + događaj; dvostruko brisanje → odbijeno; broker ne radi → izuzetak; approved → brisanje; ponovljen approved → ignorisan; rejected → kompenzacija (ACTIVE) | 7 |
+| users-service | `SpectatorControllerTest` | validacija (JMBG, obavezna polja, e-mail, NUL znak) → 400; duplikat → 409; DELETE → 202 / 404 / 409 / 503; putanja sa `%00` → 400 | 9 |
+| users-service | `TicketAgentControllerTest` | lozinke se ne vraćaju; nepostojeći blagajnik → 404; prijava radi | 3 |
+| ticketing-service | `SpectatorDeletionListenerTest` | pravilo sage: bez karata → approved; buduća karta → rejected; samo prošle → anonimizacija + approved; karta bez termina → rejected | 4 |
+| ticketing-service | `TicketServiceTest` | kupovina: ispravna; zauzeto mjesto („007“ = „7“); mjesto van sale; nepostojeće izvođenje; duplikat ID-a; nepostojeći blagajnik; gledalac u brisanju; slobodna mjesta; nepostojeće izvođenje → 404 | 9 |
+| ticketing-service | `UsersServiceClientTest` | neispravan ID (`{x}`, `../`, razmak…) → bez mrežnog poziva; ID kao parametar URI šablona; 404 = „ne postoji“ | 8 |
+| ticketing-service | `TicketControllerTest` | ispravna kupovina → 200 + mail; neispravno tijelo → 400 sa detaljima; users-service ne radi → 503; gledalac u brisanju → 409 | 4 |
+
+Ukupno **44 testa** (users 19, ticketing 25). Većina testova direktno pokriva nalaze fuzz testiranja (sekcija 10), pa bi se povratak greške odmah vidio u CI-ju.
+
+Usput ispravljeno: `ControlCharacterFilter` je čitao `servletPath`, koji u MockMvc testovima nije postavljen. Sada provjerava dekodirani `requestURI`, a neispravno kodiranu putanju (npr. `%zz`) odbija sa 400.

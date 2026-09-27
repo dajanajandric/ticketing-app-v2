@@ -1,11 +1,13 @@
 package pozoriste1.ticketing.web;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.UriUtils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,8 +25,14 @@ public class ControlCharacterFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String path = request.getServletPath();
-        if (path != null && path.chars().anyMatch(c -> c < 0x20 || c == 0x7F)) {
+        String path;
+        try {
+            path = UriUtils.decode(request.getRequestURI(), StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) { // neispravno kodiranje, npr. "%zz"
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Neispravno kodirana putanja");
+            return;
+        }
+        if (path.chars().anyMatch(c -> c < 0x20 || c == 0x7F)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Putanja sadrzi nedozvoljene znakove");
             return;
         }
