@@ -15,8 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Odbija zahtjev (400) ako putanja sadrzi kontrolne znakove, npr. /spectators/%00.
- * Bez ovoga takav ID stize do upita u bazi i Postgres baci gresku (500).
+ * Odbija zahtev (400) ako putanja sadrzi kontrolne znakove, npr. /spectators/%00,
+ * jer bi ih Postgres u upitu odbio sa greskom.
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

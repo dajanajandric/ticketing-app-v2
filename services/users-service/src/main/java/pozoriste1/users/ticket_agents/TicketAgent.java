@@ -18,7 +18,7 @@ public class TicketAgent {
     @Column(name = "radnik_username")
     private String username;
 
-    // Lozinka se nikad ne vraca u odgovoru (fuzz testiranje: GET /ticket-agents ju je otkrivao)
+    // Lozinka se prima pri upisu, ali se nikad ne vraca u odgovoru
     @Column(name = "radnik_password") 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

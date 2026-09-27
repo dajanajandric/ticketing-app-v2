@@ -19,8 +19,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Fuzz nalaz: ID poput "{x}" je rusio poziv prije slanja i otvarao circuit breaker.
- * Neispravan ID sada ne pravi mrezni poziv, a ispravan se salje kao parametar sablona.
+ * Neispravan ID (npr. "{x}") ne sme da napravi mrezni poziv, a ispravan se salje
+ * kao parametar URI sablona.
  */
 @ExtendWith(MockitoExtension.class)
 class UsersServiceClientTest {

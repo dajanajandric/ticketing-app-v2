@@ -53,7 +53,7 @@ class SpectatorControllerTest {
     }
 
     @Test
-    @DisplayName("POST sa NUL znakom u imenu vraca 400 (ranije: greska baze, 500)")
+    @DisplayName("POST sa NUL znakom u imenu vraca 400")
     void createRejectsControlCharacters() throws Exception {
         mvc.perform(post("/spectators").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"jmbg\":\"" + JMBG + "\",\"firstName\":\"Ana\\u0000\",\"lastName\":\"Petrovic\"}"))

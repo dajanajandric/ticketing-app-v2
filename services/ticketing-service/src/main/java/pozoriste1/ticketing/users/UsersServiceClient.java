@@ -19,12 +19,9 @@ import pozoriste1.ticketing.web.InputRules;
  * Sinhroni REST poziv sa timeout-om (RestClientConfig), retry-jem i circuit
  * breaker-om (application.properties, resilience4j.instances.usersService).
  *
- * Fuzz testiranje je pokazalo da je ID ranije lijepljen direktno u URL, pa je npr.
- * "{x}" rusio poziv jos prije slanja, a circuit breaker je to brojao kao kvar
- * users-service-a i poslije 5 takvih zahtjeva blokirao svaku prodaju na 10 s.
- * Sada: (1) ID se provjerava prije poziva, (2) prosljedjuje se kao parametar
- * sablona pa se ispravno kodira, (3) circuit breaker broji samo mrezne greske
- * i 5xx (application.properties), a fallback hvata samo njih.
+ * ID se salje kao parametar URI sablona, a ne lepi u URL, da bi se ispravno
+ * kodirao. Neispravan ID se odbija pre poziva, da los ulaz ne bi otvorio
+ * circuit breaker i blokirao prodaju svima.
  */
 @Component
 public class UsersServiceClient {
@@ -66,10 +63,9 @@ public class UsersServiceClient {
         }
     }
 
-    // Fallback samo za stvarnu nedostupnost users-service-a: kolo otvoreno, timeout /
-    // odbijena konekcija, ili 5xx poslije svih retry pokusaja. Tada ne mozemo da potvrdimo
-    // da korisnik postoji, pa prodaju karte odbijamo umesto da nagadjamo. Sve ostale
-    // greske se ne pretvaraju u "nedostupan".
+    // Fallback samo za stvarnu nedostupnost users-service-a (kolo otvoreno, timeout,
+    // 5xx posle svih pokusaja): tada ne mozemo da potvrdimo da korisnik postoji,
+    // pa se prodaja odbija umesto da se nagadja.
     private SpectatorDTO spectatorFallback(String jmbg, CallNotPermittedException ex) {
         throw unavailable("gledaoca " + jmbg, ex);
     }

@@ -17,7 +17,7 @@ const BASE = __ENV.BASE_URL || (TARGET === 'monolith' ? 'http://localhost:8084' 
 const DURATION = __ENV.DURATION || '60s';
 const RUN_ID = __ENV.RUN_ID || `${Date.now()}`;
 
-// ID-evi iz seed podataka (scripts/seed/generate_seed.py)
+// ID-evi iz testnih podataka (docs/REPORT.md, sekcija 8)
 const PERFORMANCES = Array.from({ length: 81 }, (_, i) => `izv-${String(i + 1).padStart(3, '0')}`);
 const PLAYS = Array.from({ length: 28 }, (_, i) => `pr-${String(i + 1).padStart(2, '0')}`);
 const REPERTORIES = ['9-26', '10-26', '11-26', '12-26'];

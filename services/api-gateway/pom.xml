@@ -33,8 +33,7 @@
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- Gateway Server MVC: servlet-based (not WebFlux), consistent with the
-		     rest of the project's stack -->
+		<!-- Gateway Server MVC (servlet, ne WebFlux), isti stack kao ostatak projekta -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway-mvc</artifactId>

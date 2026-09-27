@@ -11,10 +11,8 @@ import org.springframework.web.filter.CorsFilter;
 
 /**
  * CORS se podesava samo ovde, jer je gateway jedina ulazna tacka za browser.
- * Servisi vise nemaju @CrossOrigin: da ga imaju, odgovor bi imao dva
- * Access-Control-Allow-Origin zaglavlja i browser bi ga odbio.
- * Bez ovoga gateway odbija preflight (OPTIONS) zahteve sa 403, pa iz browsera
- * ne rade POST/PATCH/DELETE sa JSON telom (kupovina, slobodna mesta, gledaoci).
+ * Servisi zato nemaju @CrossOrigin: inace bi odgovor imao dva
+ * Access-Control-Allow-Origin zaglavlja, a browser takav odgovor odbija.
  */
 @Configuration
 public class CorsConfig {

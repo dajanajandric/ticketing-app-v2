@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Pretvara greske izazvane losim ulazom u 4xx odgovore. Fuzz testiranje je pokazalo
- * da bez ovoga npr. nepostojeca referenca ili povreda stranog kljuca daju 500.
+ * Pretvara greske izazvane losim ulazom (neispravni podaci, nepostojeca referenca,
+ * povreda stranog kljuca) u 4xx odgovore umesto 500.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

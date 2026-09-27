@@ -33,7 +33,7 @@ class TicketAgentControllerTest {
     }
 
     @Test
-    @DisplayName("Lista blagajnika ne otkriva lozinke (fuzz nalaz)")
+    @DisplayName("Lista blagajnika ne otkriva lozinke")
     void listDoesNotExposePasswords() throws Exception {
         when(service.getAll()).thenReturn(List.of(agent()));
 

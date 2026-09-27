@@ -113,7 +113,7 @@ class TicketServiceTest {
     }
 
     @Test
-    @DisplayName("Nepostojece izvodjenje se odbija sa 400, ne NullPointerException (fuzz nalaz)")
+    @DisplayName("Nepostojece ili izostavljeno izvodjenje se odbija")
     void createRejectsUnknownPerformance() {
         Ticket t = request("ul-1", "6");
         t.getPerformance().setId("nema");
@@ -165,7 +165,7 @@ class TicketServiceTest {
     }
 
     @Test
-    @DisplayName("Slobodna mjesta za nepostojece izvodjenje: 404 (ranije RuntimeException -> 500)")
+    @DisplayName("Slobodna mesta za nepostojece izvodjenje: 404")
     void availableSeatsUnknownPerformance() {
         assertThatThrownBy(() -> service.getAvailableSeats("nema"))
                 .isInstanceOfSatisfying(ResponseStatusException.class,

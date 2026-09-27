@@ -33,7 +33,7 @@ public class Performance {
     private Showtime showtime;
 
     @ManyToOne
-    // Bez sale, termina i predstave izvodjenje obara GET /performances (fuzz nalaz, 2. krug)
+    // Lista izvodjenja cita salu, termin i predstavu, pa su obavezni pri kreiranju
     @JoinColumn(name = "predstava_predstava_id")
     @NotNull(groups = OnCreate.class)
     private Play play;

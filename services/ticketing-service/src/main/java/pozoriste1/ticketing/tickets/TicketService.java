@@ -66,7 +66,7 @@ public class TicketService {
 		if (repository.existsById(t.getId()))
 			throw new IllegalStateException("Karta " + t.getId() + " vec postoji");
 
-		// Izvodjenje mora postojati, a mjesto mora biti u sali (ranije: NullPointerException -> 500)
+		// Izvodjenje mora postojati, a mesto mora biti u sali
 		if (t.getPerformance() == null || t.getPerformance().getId() == null)
 			throw new IllegalArgumentException("Nedostaje izvodjenje");
 		Performance performance = performanceRepository.findById(t.getPerformance().getId())
