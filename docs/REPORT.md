@@ -1,6 +1,6 @@
 # Izveštaj: migracija monolita na mikroservise
 
-Detaljan izveštaj uz projekat za kurs *Razvoj poslovnih sistema* (prof. Gordana Rakić). Kratak pregled, arhitektura i uputstvo za pokretanje su u [README-u](../README.md); ovde su odluke, merenja i nalazi.
+Detaljan izveštaj uz projekat za kurs *Napredne teme softverskog inženjerstva* (prof. Gordana Rakić). Kratak pregled, arhitektura i uputstvo za pokretanje su u [README-u](../README.md); ovde su odluke, merenja i nalazi.
 
 ## Sadržaj
 

@@ -1,6 +1,6 @@
 # Pozorište: od monolita do mikroservisa
 
-Projekat za kurs *Razvoj poslovnih sistema* (prof. Gordana Rakić). Postojeća aplikacija za prodaju pozorišnih ulaznica (Spring Boot + Vue) podeljena je iz monolita na **dva mikroservisa** sa API Gateway-om, a zatim je izmereno i testirano šta se podelom dobilo i izgubilo.
+Projekat za kurs *Napredne teme softverskog inženjerstva* (prof. Gordana Rakić). Postojeća aplikacija za prodaju pozorišnih ulaznica (Spring Boot + Vue) podeljena je iz monolita na **dva mikroservisa** sa API Gateway-om, a zatim je izmereno i testirano šta se podelom dobilo i izgubilo.
 
 Šta je urađeno:
 
