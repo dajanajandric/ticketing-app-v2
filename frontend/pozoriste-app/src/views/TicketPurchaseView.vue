@@ -65,15 +65,19 @@
 
       <!-- Datum -->
       <div class="mb-3">
-        <label for="date" class="form-label text-white">Datum:</label>
-        <input
-          type="date"
-          id="date"
-          class="form-control"
+        <label class="form-label text-white">Datum:</label>
+        <PerformanceCalendar
           v-model="selectedDate"
-          @change="onDateChange"
+          :available-dates="availableDates"
           :disabled="!selectedPlay"
+          @update:model-value="onDateChange"
         />
+        <small
+          v-if="selectedPlay && availableDates.length === 0"
+          class="text-white-50"
+        >
+          Ova predstava nema predstojećih izvođenja
+        </small>
       </div>
 
       <!-- Vreme -->
@@ -158,13 +162,16 @@
 <script>
 import axios from "axios";
 import { API_BASE_URL } from "@/config";
+import PerformanceCalendar from "@/components/PerformanceCalendar.vue";
 
 export default {
   name: "TicketPurchase",
+  components: { PerformanceCalendar },
   data() {
     return {
       spectators: [],
       plays: [],
+      playPerformances: [],
       performances: [],
       availableSeats: [],
       selectedSpectator: "",
@@ -184,6 +191,17 @@ export default {
           this.selectedPerformance &&
           this.selectedSeat !== null
       );
+    },
+    // Datumi predstojećih izvođenja izabrane predstave; ostali su u kalendaru crveni
+    availableDates() {
+      const now = new Date();
+      return [
+        ...new Set(
+          this.playPerformances
+            .filter((p) => new Date(`${p.date}T${p.time}`) > now)
+            .map((p) => p.date)
+        ),
+      ];
     },
     selectedPerformanceDetails() {
       return this.performances.find((p) => p.id === this.selectedPerformance);
@@ -213,18 +231,17 @@ export default {
         console.error("Greška prilikom učitavanja predstava:", err);
       }
     },
-    async fetchPerformances() {
-      if (!this.selectedPlay || !this.selectedDate) return;
+    async fetchPlayPerformances() {
+      if (!this.selectedPlay) return;
       try {
         const res = await axios.get(
           `${API_BASE_URL}/performances/by-play/${this.selectedPlay}`
         );
-        this.performances = res.data.filter(
-          (perf) => perf.date === this.selectedDate
-        );
+        // 204 (predstava bez izvođenja) vraća prazno telo
+        this.playPerformances = Array.isArray(res.data) ? res.data : [];
       } catch (err) {
         console.error("Greška prilikom učitavanja termina:", err);
-        this.performances = [];
+        this.playPerformances = [];
       }
     },
     async fetchAvailableSeats(performanceId) {
@@ -240,18 +257,22 @@ export default {
         this.availableSeats = [];
       }
     },
-    onPlayChange() {
+    async onPlayChange() {
       this.selectedDate = "";
       this.selectedPerformance = "";
       this.selectedSeat = null;
+      this.playPerformances = [];
       this.performances = [];
       this.availableSeats = [];
+      await this.fetchPlayPerformances();
     },
-    async onDateChange() {
+    onDateChange() {
       this.selectedPerformance = "";
       this.selectedSeat = null;
       this.availableSeats = [];
-      await this.fetchPerformances();
+      this.performances = this.playPerformances.filter(
+        (perf) => perf.date === this.selectedDate
+      );
     },
     async onPerformanceChange() {
       this.selectedSeat = null;
@@ -300,6 +321,7 @@ export default {
       this.selectedDate = "";
       this.selectedPerformance = "";
       this.selectedSeat = null;
+      this.playPerformances = [];
       this.performances = [];
       this.availableSeats = [];
       this.purchaseSuccess = false;
