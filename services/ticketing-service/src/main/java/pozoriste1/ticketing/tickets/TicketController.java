@@ -1,5 +1,7 @@
 package pozoriste1.ticketing.tickets;
 
+import pozoriste1.ticketing.web.OnCreate;
+import org.springframework.validation.annotation.Validated;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +48,7 @@ public class TicketController {
 	    }
 	 
 	 @PostMapping
-	 public ResponseEntity<?> createTicket(@RequestBody Ticket u) {
+	 public ResponseEntity<?> createTicket(@Validated(OnCreate.class) @RequestBody Ticket u) {
 	     try {
 	         Ticket created = service.create(u);
 

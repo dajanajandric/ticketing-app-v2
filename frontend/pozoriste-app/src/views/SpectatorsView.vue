@@ -340,7 +340,7 @@ export default {
         alert("Gledalac je uspešno dodat!");
       } catch (err) {
         console.error("Greška prilikom dodavanja gledaoca:", err);
-        alert(err.response?.data || "Greška prilikom dodavanja gledaoca.");
+        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom dodavanja gledaoca.");
       }
     },
     editSpectator(spectator) {
@@ -366,20 +366,37 @@ export default {
         alert("Gledalac je uspešno ažuriran!");
       } catch (err) {
         console.error("Greška prilikom ažuriranja gledaoca:", err);
-        alert(err.response?.data || "Greška prilikom ažuriranja gledaoca.");
+        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom ažuriranja gledaoca.");
       }
     },
     async deleteSpectator(jmbg) {
       if (!confirm("Da li ste sigurni da želite da obrišete ovog gledaoca?"))
         return;
       try {
+        // Brisanje je saga: server odmah vraća 202, a ticketing-service zatim
+        // provjerava karte gledaoca. Čekamo ishod (gledalac nestane ili se vrati u ACTIVE).
         await axios.delete(`${API_BASE_URL}/spectators/${jmbg}`);
+        const outcome = await this.waitForDeletion(jmbg);
         await this.fetchSpectators();
-        alert("Gledalac je uspešno obrisan!");
+        if (outcome === "deleted") alert("Gledalac je uspešno obrisan!");
+        else if (outcome === "rejected") alert("Brisanje je odbijeno: gledalac ima karte za predstave koje još nisu odigrane.");
+        else alert("Zahtev za brisanje je primljen i još se obrađuje. Osvežite listu za par trenutaka.");
       } catch (err) {
         console.error("Greška prilikom brisanja gledaoca:", err);
-        alert(err.response?.data || "Greška prilikom brisanja gledaoca.");
+        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom brisanja gledaoca.");
       }
+    },
+    async waitForDeletion(jmbg) {
+      for (let i = 0; i < 10; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+          const res = await axios.get(`${API_BASE_URL}/spectators/${jmbg}`);
+          if (res.data.status === "ACTIVE") return "rejected";
+        } catch (err) {
+          if (err.response?.status === 404) return "deleted";
+        }
+      }
+      return "pending";
     },
     resetForm() {
       this.newSpectator = {

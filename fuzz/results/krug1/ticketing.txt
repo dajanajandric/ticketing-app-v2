@@ -1,0 +1,1683 @@
+Schemathesis v4.28.0
+━━━━━━━━━━━━━━━━━━━━
+
+
+ ✅  Loaded specification from http://localhost:8082/v3/api-docs (in 0.93s)    
+
+     Base URL:         http://localhost:8082/                                  
+     Specification:    Open API 3.0.1                                          
+     Operations:       17 selected / 17 total                                  
+
+
+ ✅  API capabilities:                                                         
+
+     Supports NULL byte in headers:                            ✘               
+     Accepts backslash and control characters in URL paths:    ✘               
+
+ ⏭   Examples (in 0.04s)                                                       
+                                                                               
+     ⏭  17 skipped                                                             
+
+ ❌  Coverage (in 3.35s)                                                       
+                                                                               
+     ✅  2 passed  ❌ 15 failed                                                
+
+ ❌  Fuzzing (in 1.92s)                                                        
+                                                                               
+     ✅  1 passed  ❌ 16 failed                                                
+
+ ❌  Stateful (in 1684.17s)                                                    
+
+     Scenarios:    922                                                         
+     API Links:    36 covered / 70 selected / 70 total (70 inferred)           
+
+     ✅ 880 passed  ❌ 42 failed                                               
+
+=================================== FAILURES ===================================
+__________________________ DELETE /performances/{id} ___________________________
+1. Test Case ID: tUkQ04
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:32.186+00:00","status":500,"error":"Internal Server Error","path":"/performances/izv-004"}`
+
+Reproduce with:
+
+    curl -X DELETE http://localhost:8082/performances/izv-004
+    
+    st replay tUkQ04
+
+______________________________ DELETE /plays/{id} ______________________________
+1. Test Case ID: nLLYeK
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:32.212+00:00","status":500,"error":"Internal Server Error","path":"/plays/pr-04"}`
+
+Reproduce with:
+
+    curl -X DELETE http://localhost:8082/plays/pr-04
+    
+    st replay nLLYeK
+
+_________ DELETE /repertory/{repertoryId}/performances/{performanceId} _________
+1. Test Case ID: cDc6f8
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X DELETE http://localhost:8082/repertory/0/performances/izv-005
+    
+    st replay cDc6f8
+
+______________________________ GET /performances _______________________________
+1. Test Case ID: tw4WPu
+
+- Response violates schema
+
+    "19:00:00" is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/LocalTime:
+
+        {
+            "type": "object",
+            "properties": {
+                "hour": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "minute": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "second": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "nano": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            // Output truncated...
+        }
+
+    Value:
+
+        "19:00:00"
+
+[200] OK:
+
+    `[{"id":"izv-001","playId":"Uspavana lepotica","date":"2026-09-26","time":"19:00:00","auditoriumName":"Jovan Đorđević"},{"id":"izv-002","playId":"Uspavana lepotica","date":"2026-09-28","time":"19:00:00","auditoriumName":"Jovan Đorđević"},{"id":"izv-003","playId":"Violinista na krovu","date":"2026-09-29","time":"19:30:00","auditoriumName":"Pera Dobrinović"},{"id":"izv-004","playId":"Totovi","date":"2026-09-30","time":"21:00:00","auditoriumName":"Kamerna scena"},{"id":"izv-005","playId":"Rigoleto","date":"2026 // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/performances
+    
+    st replay tw4WPu
+
+______________________ GET /performances/by-play/{playId} ______________________
+1. Test Case ID: PpY0C6
+
+- Response violates schema
+
+    "19:30:00" is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/LocalTime:
+
+        {
+            "type": "object",
+            "properties": {
+                "hour": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "minute": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "second": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "nano": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            // Output truncated...
+        }
+
+    Value:
+
+        "19:30:00"
+
+[200] OK:
+
+    `[{"id":"izv-003","playId":"pr-02","date":"2026-09-29","time":"19:30:00","auditoriumName":"Pera Dobrinović"},{"id":"izv-006","playId":"pr-02","date":"2026-10-01","time":"19:30:00","auditoriumName":"Pera Dobrinović"},{"id":"izv-007","playId":"pr-02","date":"2026-10-02","time":"19:30:00","auditoriumName":"Pera Dobrinović"},{"id":"izv-042","playId":"pr-02","date":"2026-11-05","time":"19:30:00","auditoriumName":"Pera Dobrinović"},{"id":"izv-043","playId":"pr-02","date":"2026-11-06","time":"19:30:00","auditoriumN // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/performances/by-play/pr-02
+    
+    st replay PpY0C6
+
+____________________________ GET /performances/{id} ____________________________
+1. Test Case ID: Orstvk
+
+- Response violates schema
+
+    "2026-09-29T19:30:00" is not a "date-time"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Showtime/properties/time:
+
+        {
+            "format": "date-time",
+            "type": "string"
+        }
+
+    Value:
+
+        "2026-09-29T19:30:00"
+
+[200] OK:
+
+    `{"id":"izv-003","auditorium":{"id":"snp-pd","title":"Pera Dobrinović","numOfSeats":400},"showtime":{"id":"290926-1930","date":"2026-09-29","time":"2026-09-29T19:30:00"},"play":{"id":"pr-02","title":"Violinista na krovu","playwright":"Džozef Stajn","scenographer":{"id":"scg-03","firstName":"Vesna","lastName":"Popović"},"director":{"id":"rez-03","firstName":"Jelena","lastName":"Bogavac"}}}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/performances/izv-003
+    
+    st replay Orstvk
+
+_______________________________ GET /plays/{id} ________________________________
+1. Test Case ID: SeBYQ0
+
+- JSON deserialization error
+
+    Response must be valid JSON with 'Content-Type: application/json' header:
+
+      Expecting value: line 1 column 1 (char 0)
+
+- Missing Content-Type header
+
+    The following media types are documented in the schema:
+    - `*/*`
+
+[200] OK:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays/izv-001
+    
+    st replay SeBYQ0
+
+_____________________________ GET /repertory/{id} ______________________________
+1. Test Case ID: UFqBM9
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/repertory/0
+    
+    st replay UFqBM9
+
+_________________________________ GET /tickets _________________________________
+1. Test Case ID: TXt7iW
+
+- Response violates schema
+
+    "2026-11-30T21:00:00" is not a "date-time"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Showtime/properties/time:
+
+        {
+            "format": "date-time",
+            "type": "string"
+        }
+
+    Value:
+
+        "2026-11-30T21:00:00"
+
+[200] OK:
+
+    `[{"id":"k6-20260926-181755-12-0","price":"1200 RSD","numberOfSeatInAuditorium":"62","ticketAgentId":"blag-04","spectatorId":"1207970803324","performance":{"id":"izv-063","auditorium":{"id":"snp-ks","title":"Kamerna scena","numOfSeats":120},"showtime":{"id":"301126-2100","date":"2026-11-30","time":"2026-11-30T21:00:00"},"play":{"id":"pr-23","title":"Roditelj: prvih šest godina","playwright":"Andrej Boka","scenographer":{"id":"scg-04","firstName":"Igor","lastName":"Vasiljev"},"director":{"id":"rez-08","firstN // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    
+    st replay TXt7iW
+
+______________________________ GET /tickets/{id} _______________________________
+1. Test Case ID: N2VyTS
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets/0
+    
+    st replay N2VyTS
+
+______________________________ POST /performances ______________________________
+1. Test Case ID: wq8pnc
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:38:31.284+00:00","status":400,"error":"Bad Request","path":"/performances"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/performances
+    
+    st replay wq8pnc
+
+2. Test Case ID: sVoc5l
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:33.799+00:00","status":500,"error":"Internal Server Error","path":"/performances"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:8082/performances
+    
+    st replay sVoc5l
+
+_________________________________ POST /plays __________________________________
+1. Test Case ID: h4Rvh8
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:38:31.308+00:00","status":400,"error":"Bad Request","path":"/plays"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/plays
+    
+    st replay h4Rvh8
+
+2. Test Case ID: UUPFYy
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:33.832+00:00","status":500,"error":"Internal Server Error","path":"/plays"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:8082/plays
+    
+    st replay UUPFYy
+
+_______________________________ POST /repertory ________________________________
+1. Test Case ID: 1NFTp5
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:38:31.396+00:00","status":400,"error":"Bad Request","path":"/repertory"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/repertory
+    
+    st replay 1NFTp5
+
+2. Test Case ID: TzJ5Xy
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:33.862+00:00","status":500,"error":"Internal Server Error","path":"/repertory"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:8082/repertory
+    
+    st replay TzJ5Xy
+
+__________ POST /repertory/{repertoryId}/performances/{performanceId} __________
+1. Test Case ID: RtpnQA
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/repertory/0/performances/izv-002
+    
+    st replay RtpnQA
+
+________________________________ POST /tickets _________________________________
+1. Test Case ID: iaXFPm
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:38:31.509+00:00","status":400,"error":"Bad Request","path":"/tickets"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/tickets
+    
+    st replay iaXFPm
+
+2. Test Case ID: 8c2iGv
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:33.918+00:00","status":500,"error":"Internal Server Error","path":"/tickets"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:8082/tickets
+    
+    st replay 8c2iGv
+
+__________________ POST /tickets/performance/available-seats ___________________
+1. Test Case ID: 9dT4hQ
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:38:29.232+00:00","status":400,"error":"Bad Request","path":"/tickets/performance/available-seats"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/tickets/performance/available-seats
+    
+    st replay 9dT4hQ
+
+2. Test Case ID: KtaCKk
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:38:32.381+00:00","status":500,"error":"Internal Server Error","path":"/tickets/performance/available-seats"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{}' http://localhost:8082/tickets/performance/available-seats
+    
+    st replay KtaCKk
+
+________________________________ Stateful tests ________________________________
+1. Test Case ID: f5IIVL
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+
+[400] Bad Request:
+
+    `Ticket agent ?¶ç does not exist`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X POST -H 'Content-Type: application/json' -d '{"price": "F8\u00fcI\u001e\\@M\u00fe", "spectatorId": "]\udb8c\udcea\u00b4p\udaff\udebf\udbdb\udef2\udbfc\udc0f\u4e8a^\u00c0\u00e7\ud993\udd09", "performance": {"\ud861\udea1?": [[]], "r\u009f": -1.1754943508222875e-38, "a\u0096\u009a\u001a\u00a8\uda79\udee4x": [-3.769424900833761e-232, null, -908424], "\ud844\udeb7\u0015A\uda05\udf8c\udad1\udf09\ud922\udda4": null, "play": {}, "id": "=\uda43\udf5f"}, "numberOfSeatInAuditorium": "\u00f6%\u00e9T\u00d04&\u0001\u00db\u00b8", "ticketAgentId": "?\u008e\u0017\u00b6\u0094\b\u00e7", "id": "\udac0\udea5\uda61\udeba"}' http://localhost:8082/tickets
+    
+    st replay f5IIVL
+
+2. Test Case ID: lNNgND
+
+- Response violates schema
+
+    null is not of type "array"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Repertory/properties/performances:
+
+        {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/components/schemas/Performance"
+            }
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"scg-02","title":"Gospođa ministarka","performances":null}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"\u0081gZ\u00d3\u009c": [true, false, -13916], "Released": [[]], "\u0014\u0010\u00a6s\u00e5\u00f0\u00d9\ud84e\udf1b\u009c2\u00a9\u0017\ud830\uded4\udb4a\ude57\u000e\u922c\u00e9\u2e31F": {"c\u00a2\u00e4\udb94\udcd0\u0087": [{"y": null}, [true]], "\u00d3*\u00bc": []}, "R'"'"'\ud9a1\ude50}I\u0084\u0001\u008f": {}, "\u0013\u00b8)l\u0006": {}, "title": "Gospo\u0111a ministarka", "id": "scg-02"}' http://localhost:8082/repertory
+    
+    st replay lNNgND
+
+3. Test Case ID: wd7jHh
+
+- Response violates schema
+
+    "2026-11-10T21:00:00" is not a "date-time"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Showtime/properties/time:
+
+        {
+            "format": "date-time",
+            "type": "string"
+        }
+
+    Value:
+
+        "2026-11-10T21:00:00"
+
+[200] OK:
+
+    `{"id":"k6-20260926-181755-19-599","price":"1200 RSD","numberOfSeatInAuditorium":"92","ticketAgentId":"blag-03","spectatorId":"2101981804552","performance":{"id":"izv-046","auditorium":{"id":"snp-ks","title":"Kamerna scena","numOfSeats":120},"showtime":{"id":"101126-2100","date":"2026-11-10","time":"2026-11-10T21:00:00"},"play":{"id":"pr-08","title":"Lutka sa kreveta broj 21","playwright":"Đorđe Lebović","scenographer":{"id":"scg-04","firstName":"Igor","lastName":"Vasiljev"},"director":{"id":"rez-01","firstN // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X GET http://localhost:8082/tickets/k6-20260926-181755-19-599
+    
+    st replay wd7jHh
+
+4. Test Case ID: Y46Eo3
+
+- JSON deserialization error
+
+    Response must be valid JSON with 'Content-Type: application/json' header:
+
+      Expecting value: line 1 column 1 (char 0)
+
+- Missing Content-Type header
+
+    The following media types are documented in the schema:
+    - `*/*`
+
+[200] OK:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X POST http://localhost:8082/repertory/scg-02/performances/izv-061
+    
+    st replay Y46Eo3
+
+5. Test Case ID: WpGRhT
+
+- Response violates schema
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Repertory/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"rez-04","title":null,"performances":null}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"": [], "\ud925\udede\u00b4\ud8dc\udc04t\u00160\u00da\udb30\udf53": {"\n": "\u00e1\udb1b\ude98\u00b3\f\u001a", "\u00d8": "V\u00d0j\u00c0\u000e|", "?\b\ua4d7\udb6e\udc7c\u00f8\ud99a\udd01": -282}, "F\ud951\udd0e\u00ec\u0080\u00da\udb1b\uddfc\u00071\ud938\udd00\ud8d4\udf8b^'"'"'": "\u00d0Y", "\ud8c6\udf5bI\u00ea\u00d3\u722d(\uda13\udc69\u00ad\u00fe\u497cQ": {"\u00a7": {"": "@jb", "\u00ea\u00e4": true, ")\u000f\u007f\u00d7\u00cb\u00fa": null}}, "\u00ab\"\udad2\udd54\uda82\udc8d": {"\udabf\udec5>}\u00c0]C\uda68\ude4aD\u000f\u0097\u0011\u0002\u00f7\u00f9\udbc6\udc92\u00fe": ["", -5564401179914631.0, 1975065593615]}, "id": "rez-04"}' http://localhost:8082/repertory
+    
+    st replay WpGRhT
+
+6. Test Case ID: X5FIYk
+
+- Response violates schema (3 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Auditorium:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "numOfSeats": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "playwright": {
+                    "type": "string"
+                },
+                "scenographer": {
+                    "$ref": "#/components/schemas/Scenographer"
+                },
+                "director": {
+                    "$ref": "#/components/schemas/Director"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Showtime:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "time": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"\u0006ÒKs\uDAB2\uDF0D\uDB9E\uDE16[V%\uDBF9\uDD8D","auditorium":null,"showtime":null,"play":null}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"H\u008a_\u00ed\u57f7": {"\u00e2\u000f": {}}, "\u00db\u00ba\u001a5": {"": [6.190121818386634e+16, -4.561497149485375e+16], "\u00d4\u00dd\ud87f\udc1f\u00c1\ud8d6\udf9f": {}, "\u00a4]": {",\ud824\ude32\u000f\u009e\ud8e7\uddfe\u00b7": -2146377177935, "\ud826\udebd\ud9e9\udfc6[L": false, "\\": -115302015791031549952}}, "\u0091": {}, "\ud9b7\udf2c\udad1\udd93\u00d9M\u00d5": {"\u00d3": [0.05], "\ud94d\uddba": {"\u008e\u00d0": -3.638085066548694e-42, "None": true, "": true}, "\u00f0\u0080\u0084\u0013\ud8f2\udf79": {}}, "\u0082fG": {"m\u009dt\u00f7": null}, "id": "\u0006\u00d2Ks\udab2\udf0d\udb9e\ude16[V\u008c\u009d%\udbf9\udd8d"}' http://localhost:8082/performances
+    
+    st replay X5FIYk
+
+7. Test Case ID: igGGHA
+
+- JSON deserialization error
+
+    Response must be valid JSON with 'Content-Type: application/json' header:
+
+      Expecting value: line 1 column 1 (char 0)
+
+- Missing Content-Type header
+
+    The following media types are documented in the schema:
+    - `*/*`
+
+[200] OK:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"H\u008a_\u00ed\u57f7": {"\u00e2\u000f": {}}, "\u00db\u00ba\u001a5": {"": [6.190121818386634e+16, -4.561497149485375e+16], "\u00d4\u00dd\ud87f\udc1f\u00c1\ud8d6\udf9f": {}, "\u00a4]": {",\ud824\ude32\u000f\u009e\ud8e7\uddfe\u00b7": -2146377177935, "\ud826\udebd\ud9e9\udfc6[L": false, "\\": -115302015791031549952}}, "\u0091": {}, "\ud9b7\udf2c\udad1\udd93\u00d9M\u00d5": {"\u00d3": [0.05], "\ud94d\uddba": {"\u008e\u00d0": -3.638085066548694e-42, "None": true, "": true}, "\u00f0\u0080\u0084\u0013\ud8f2\udf79": {}}, "\u0082fG": {"m\u009dt\u00f7": null}, "id": "\u0006\u00d2Ks\udab2\udf0d\udb9e\ude16[V\u008c\u009d%\udbf9\udd8d"}' http://localhost:8082/performances
+    curl -X GET http://localhost:8082/performances/_%C3%92Ks%F2%BC%AC%8D%F3%B7%A8%96%5BV%C2%8C%C2%9D%25%F4%8E%96%8D
+    
+    st replay igGGHA
+
+8. Test Case ID: u9BvKd
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 500
+    Documented: 200
+
+[500] Internal Server Error:
+
+    `{"timestamp":"2026-09-26T17:39:24.391+00:00","status":500,"error":"Internal Server Error","path":"/performances"}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/performances
+    
+    st replay u9BvKd
+
+9. Test Case ID: lm1wjb
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+    Hint: The request body contains 5 additional properties not defined in the schema (` ¦°`, `¯􏑓a膱û󘄥ºN􏂐ás򒹐`, `Þg` and 2 more). The server likely rejects unexpected fields. Add `additionalProperties: false` to your schema to prevent this.
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:39:24.635+00:00","status":400,"error":"Bad Request","path":"/repertory"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"\u00af\udbfd\udc53a\u81b1\u0082\u00fb\udb20\udd25\u00ba\u0011N\udbfc\udc90\u00e1s\u008c\uda0b\ude50": {"\u00c80\u0097\u00aaf\u000f": null, "2\u0094\u0087\u0084\u00ef": 839599}, "\u00de\u0013g": [{"\u0014G\uda5f\ude8b`\ud836\udf68\u00ab": "", "": null, "\ud81a\udece\udac6\udcff\uda01\udeaf\u008d": {}}], "\u00f3": [], "\uda20\udf23\udbbb\ude9c": {}, " \u00a6\u0016\u00b0\u0001\u0019": {"\uda37\udcd7\u008aY": [-3.19525300764109e+16, true], "\u009e\udac4\udea03\ud97c\ude99\u00bb": [null], "": "\u00a4"}, "title": "Uspavana lepotica", "id": "\ud910\udf13", "performances": [{"": [{"T\u00a9\u00f5\u00b6\b\ud846\udfa4p\ud844\udd38Ccew\u0016\u00d1$\u00e8": "X\udbb4\ude52;\ud974\udef2#}\u0094I\u00c5\u00a3\u0082", "\u00c2\u00ab": "\u00d7\ud84b\udf15\u00e6", "x\ud9c4\udd302\udaf1\udfb4\u0004<\udade\ude7a\"i": null}], "$\uda27\udfa2\u00ca\u0005\udbec\udee7\u00f2": [[], {}, {"9": 9007199254740992.0}]}, {"\ud83d\udc4d\ud83c\udffb": [], "\u00d1\u00ef\u0092\u00ce\u00cez\u0012\u00f7\ud9f0\ude02\u0003\u0096\u00aa\u00c1?\u00ec": [{"\u00c2\ud863\ude4d\u735f\u00de\u00d2\u0091\udacd\udf09\ud902\uddc0\udb66\udf0a3\ud80b\uded7\u00d1": "\u009aN\u0080\ud879\udfd4\u00fau"}, {"": -1.7976931348623157e+308, "\u00bd\u00b7\u00ae": -6.453896122962009e-45}]}, {"\uda11\udc18": [[]], "auditorium": {"LPT1": {"\u00ef\udbde\udd80": {"\u0010\u00ad": -250, "\u00cc\u00af\"\ud881\udf2b\udb43\udd23\u00f1\u00ab": "\u00c1", "+\uda99\ude74\u00e0 ": "\u00ec\u0007\u0012"}, "\u009fG\ud8b4\udd60U": {}, "\uda41\udd41<\u7ea9\u00b4": {}}, "\u00e1\udb67\udd68\u009c": [], "C*\u875e\u0007\ud999\ude47\u00a7": [[], {"\u00f7\u00e3\u0083\u00a2;\u00f0\ud8db\udeac%\ud856\uddb1h\u009a\u009a\u0091\u00b7": "\u00a8\u00fc>>J4L\udb20\udf1d\u0097$Z\u0006\u00f6\udafa\udd2e\t\ud840\udd4c\b\udabe\udc8f\u00d8\u00ed\u0098"}, [{"": null, "\ud8e7\udcc4Co\u0002\ud867\udc29": false, "y\udb97\ude22l\u00c4$\u000f\u00df|": false}, false]]}, "id": "O#"}, {"\uda1b\uded9\udb4a\udc7do\ud89f\udd47\u00d6": [{}], "": []}, {"+\udae2\udc01-\u00c5 \ud91a\udd6f\u0080": [], "showtime": {"k\u00b8+4\udbd3\uddabO\uda20\udd69\u0011\u0086\u00c7}\u0095\u0004)`\u001a": "\u00d5\ud9f8\udcc0\u0086", "xt\u0003\ud8ab\ude86\udaad\uddfaT": [{}], "id": "^", "date": "0468-12-23", "time": "0402-04-27T00:14:45-08:11"}}, {"": [false, 6984507836, "\udb6c\udd05"], "pathItem": "\u00d8\udbc8\udc67\u0005", "id": "?\ud93e\udd23\uda26\uddba\udb95\udd81t\u00a8[W", "showtime": {"s\uab3f\u00f5": {}, "\u00e9B@\u00b4I?": [["\n\u009e\u009dO\u00e8\u0016\u00c8", true]], "": {}, "date": "0463-05-16"}}, {"\udace\udce5": [], "\u00d1": [[], [null, "\u00eetm^"], {}], "w": {"": {"\u00f4GU\u00f0": -2.519915073598134e-173, "\ud988\udf9b": 1404, "\ud8bc\udde0v": -1.180578846604478e+231}, "\u00c8B": {"'"'"'": false}, "\u00ac\u00e1": -6.651123898530093e+16}, "\u000b": "\ud8de\udc0f", "\u001b": [{"Scunthorpe": 93000517958568}, true, ["nextpagetoken"]]}]}' http://localhost:8082/repertory
+    
+    st replay lm1wjb
+
+10. Test Case ID: n9eLcx
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+    Hint: The request body contains 5 additional properties not defined in the schema (``, `@`, `N𐺆ZwýÞ^¸õ񔨞#O` and 2 more). The server likely rejects unexpected fields. Add `additionalProperties: false` to your schema to prevent this.
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-26T17:39:29.511+00:00","status":400,"error":"Bad Request","path":"/performances"}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"": {"": 3.051645018408457e+16, "J\udb8e\udc7d\u00fc\u00c3\u00a3D%r#\u0013\u008aqF\u00aa\u0095\\\udb14\udc06\u00d4@\u0080": true, "\uda4a\udf47E\u0007V8": 0.75}, "\udb15\udf3bX\uda74\ude2d\u00bc\u0084\ud8ca\udcb9": [{"\udaad\ude74\u00bc\u00a5\u00ea": null, "-\udb68\udd83\u008b\ud80e\ude98\u00eb\u00d5\u00b2": true, "\"X\ud8a3\udf74\ud9b1\uddfbh\ud9b0\ude83;": null}, {}, ["\u001dC\udb99\udf2fe^\u000e\u0015\u00fb\u00ba\u00e3"]], "N\ud803\ude86\u0014\u0010Zw\u00fd\u00de^\u00b8\u00f5\ud912\ude1e\u009d#O": [6.872131269085463e-29, 3.3613192166452636e+16, -1.7421651576400793e+227], "@": ["\u0007\u009e", -323, "\uda62\udd6f\u00fc\u009c"], "\udb6a\udf32)7\u0097": [[], [null, false], {"\u00bc": true}], "showtime": {"\u7b3b": {"\uda30\udf22\u00a3e\u00cc\ud91d\udd48\u0093\udbf0\udfa9A\ud8fc\udda7\u009a": null, "\ud857\udcd7\u0080@\udad9\udc86\u001c\u0094\u00ffQ": -1.5, "": 4.47135527828852e+16}, "id": "izv-010", "date": "2413-06-10", "time": "1489-08-27T09:29:37-04:50"}, "auditorium": {"\u009e": [{"\u00e4\uda72\udf3e\ud8db\udeea\u00d9;\ud8ea\ude24>\u00a6\ud82e\udf58\u0014\u00fe": false}], "\u00ae\u0005\u0781i\ud887\udd70^\u0099\udbe0\udfd5\u00a7\ud95b\udea0g\u00be\u00eb\ud91e\udce2\ud91f\ude37": [], "": [[], -738, [553380101116756672]], "\u000f": true, "id": "izv-002", "title": "Violinista na krovu", "numOfSeats": 373337}, "play": {"8": {"\ud971\udd65\u00e4@\u00ef": []}, "\u0016\ub8bfcA\udacc\uddbd^": -29135388905620307943069057024, "\u03a9\u2248\u00e7\u221a\u222b\u02dc\u00b5\u2264\u2265\u00f7\u00e5\u00df\u2202\u0192\u00a9\u02d9\u2206\u02da\u00ac\u2026\u00e6\u0153\u2211\u00b4\u00ae\u2020\u00a5\u00a8\u02c6\u00f8\u03c0\u201c\u2018\u00a1\u2122\u00a3\u00a2\u221e\u00a7\u00b6\u2022\u00aa\u00ba\u2013\u2260\u00b8\u02db\u00c7\u25ca\u0131\u02dc\u00c2\u00af\u02d8\u00bf\u00c5\u00cd\u00ce\u00cf\u02dd\u00d3\u00d4\uf8ff\u00d2\u00da\u00c6\u2603\u0152\u201e\u00b4\u2030\u02c7\u00c1\u00a8\u02c6\u00d8\u220f\u201d\u2019`\u2044\u20ac\u2039\u203a\ufb01\ufb02\u2021\u00b0\u00b7\u201a\u2014\u00b1": null}, "id": "izv-004"}' http://localhost:8082/performances
+    
+    st replay n9eLcx
+
+11. Test Case ID: ykotdf
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"pr-28","title":null,"playwright":null,"scenographer":null,"director":null}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    curl -X GET http://localhost:8082/plays/pr-28
+    curl -X POST -H 'Content-Type: application/json' -d '{"id": "pr-28"}' http://localhost:8082/plays
+    
+    st replay ykotdf
+
+12. Test Case ID: VPsYQs
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `[{"id":"pr-01","title":"Uspavana lepotica","playwright":"Petar Iljič Čajkovski","scenographer":{"id":"scg-02","firstName":"Marija","lastName":"Kalabić"},"director":{"id":"rez-02","firstName":"Miloš","lastName":"Lolić"}},{"id":"pr-02","title":"Violinista na krovu","playwright":"Džozef Stajn","scenographer":{"id":"scg-03","firstName":"Vesna","lastName":"Popović"},"director":{"id":"rez-03","firstName":"Jelena","lastName":"Bogavac"}},{"id":"pr-03","title":"Totovi","playwright":"Ištvan Erkenj","scenographer":{"i // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    
+    st replay VPsYQs
+
+13. Test Case ID: nzRGwo
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"pr-28","title":null,"playwright":null,"scenographer":null,"director":null}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    curl -X GET http://localhost:8082/plays/pr-28
+    
+    st replay nzRGwo
+
+14. Test Case ID: 8PykVb
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `[{"id":"k6-20260926-181755-12-0","price":"1200 RSD","numberOfSeatInAuditorium":"62","ticketAgentId":"blag-04","spectatorId":"1207970803324","performance":{"id":"izv-063","auditorium":{"id":"snp-ks","title":"Kamerna scena","numOfSeats":120},"showtime":{"id":"301126-2100","date":"2026-11-30","time":"2026-11-30T21:00:00"},"play":{"id":"pr-23","title":"Roditelj: prvih šest godina","playwright":"Andrej Boka","scenographer":{"id":"scg-04","firstName":"Igor","lastName":"Vasiljev"},"director":{"id":"rez-08","firstN // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    
+    st replay 8PykVb
+
+15. Test Case ID: YMmKpn
+
+- Response violates schema (3 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Auditorium:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "numOfSeats": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "playwright": {
+                    "type": "string"
+                },
+                "scenographer": {
+                    "$ref": "#/components/schemas/Scenographer"
+                },
+                "director": {
+                    "$ref": "#/components/schemas/Director"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Showtime:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "time": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `[{"id":"k6-20260926-181755-12-0","price":"1200 RSD","numberOfSeatInAuditorium":"62","ticketAgentId":"blag-04","spectatorId":"1207970803324","performance":{"id":"izv-063","auditorium":{"id":"snp-ks","title":"Kamerna scena","numOfSeats":120},"showtime":{"id":"301126-2100","date":"2026-11-30","time":"2026-11-30T21:00:00"},"play":{"id":"pr-23","title":"Roditelj: prvih šest godina","playwright":"Andrej Boka","scenographer":{"id":"scg-04","firstName":"Igor","lastName":"Vasiljev"},"director":{"id":"rez-08","firstN // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    
+    st replay YMmKpn
+
+16. Test Case ID: aYkheV
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"izv-073","auditorium":{"id":"snp-pd","title":"Pera Dobrinović","numOfSeats":400},"showtime":{"id":"181226-1930","date":"2026-12-18","time":"2026-12-18T19:30:00"},"play":{"id":"pr-28","title":null,"playwright":null,"scenographer":null,"director":null}}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X GET http://localhost:8082/performances/izv-073
+    
+    st replay aYkheV
+
+17. Test Case ID: Hq0RIk
+
+- Undocumented HTTP status code
+
+    Received: 204
+    Documented: 200
+
+[204] No Content:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"id": "pr-10"}' http://localhost:8082/repertory
+    curl -X DELETE http://localhost:8082/repertory/pr-06/performances/izv-010
+    
+    st replay Hq0RIk
+
+18. Test Case ID: pE96eT
+
+- Server error
+
+- Undocumented HTTP status code
+
+    Received: 503
+    Documented: 200
+
+[503] Service Unavailable:
+
+    `users-service nedostupan, ne mogu da proverim radnika Ö񂅕𮄙񜙔򿬃É\uu򴁻`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"g\u00f1\u0084\u0080\u00ab\uda83\ude30\u0011\uda59\uddd2qp": null, "V": [{}], "": [null], "&": [{"^\u00f5\udb09\ude85\u0094\f\u00b4\r\u008d": 1.7976931348623155e+308, "v\t\u0090": ""}, {}, {"\ud980\udc9ej\u00e5\u00e2\u00f6": 1.7976931348623157e+308, "p\ud8d2\udf17\u00ef\ud8ff\udfb2>\u00a0\u0013\ud82a\udfaa\u00ba\u00804": "2", "Ql": -5463233926012260352}], "\u00c8": [2.5587185518115556e+16, []], "performance": {"`": [null], "\u00b5\u00f7\u00fc\u00fc\u00b7p\u00fd)\ud9e8\udeeb\u00c6\udaba\udeb9{\udbd1\udd41Q\uda4c\udc43\u009d7\u00bb\u0013%\ud915\udcfd": [""], "auditorium": {"\u00c3": {}, "title": "\ud948\udfe7", "id": "9\u0096"}, "play": {"scenographer": {"\u00ed\u00c7\r\u00a7\u00d5": {"\u00cb\u0080": [false, false], "\u00ea": [[-132468, "a", "hHn\u00d9e*\u0012\uda9b\udf1b\u00ad\u00c1\uda7f\udfb7D\u0019\u001a\ud845\udd1d\u00ef"]], "\u0013d": {"\u0003t\u00f7\u00dd": {}}}, "\u6d96\u00cb\u00e26\uda88\udc6a\uda26\ude95<\u00e8P": [[], [], {"\udbf7\udf6b\u0015": "\u0080\u55e04\u00e8:O\u008ex\ud8d9\ude99\u00b7\u00c0\u00f6\ud958\udf49"}], "\u00c9\ud903\ude0a\u00e5?j\u00b0": {"\u0003\u00e6pu\u00dda|\udac5\udea6\ud94b\udefc|7\u0081jJJ\udafb\udddc": {"K\u00b9l\u001f,\u00d5\udba5\udd692\u00fcOI!\u0001\u00b6\u00e7\u00d5\udb49\udda6\u00ec\u000b\u0006": -3.5664035476853656e+16, "\u00cd?\udac6\udc0a\u00f7": 547}, "": {"\udb10\udee8\ud998\udc71g\u009a\u00e9m\u00baY": "\u00d7\ud989\ude90", "\u00cc\u0003": 593, "\u00c1": null}}, "W\u00cd": [-6306620533776468.0, true, 5231719730], "\u00cf\u0017\ud9a2\udc62\udab6\udca9": [[null, -30383], true, ["\u00baa\u00bc\uda0f\udcee\u00b2\u0083\u00c3"]]}, "title": "Nezaboravak, poto\u010dnica, zmijske o\u010di", "director": {}, "id": "izv-005", "playwright": "Dejan Dukovski"}, "showtime": {"\u00a7\ud9a5\udfc8\u000b": [[{"\u008b\">#\udb62\uddfd": null, "\u00d68\u0088a\udb0b\ude63\u00a56\u00bfj\u00e0": null}], []], "date": "0163-10-06", "time": "2602-11-20T00:08:31Z", "id": "pr-10"}, "id": "Forms"}, "spectatorId": "2410998807680", "id": "pr-05", "price": "\u00a9/\udb79\udcf6", "ticketAgentId": "\u00d6\ud8c8\udd55\ud878\udd19\ud931\ude54\udabe\udf03\u0091\u00c9\\uu\uda90\udc7b", "numberOfSeatInAuditorium": "197"}' http://localhost:8082/tickets
+    
+    st replay pE96eT
+
+19. Test Case ID: Fdg5nU
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `<!doctype html><html lang="en"><head><title>HTTP Status 400 – Bad Request</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 400 – Bad Request</h1></body></html>`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"": {"7\u00d9\u00d4": 6.5148915156892136e+16, "\u001a\ud8e0\udcff\udbb5\udccb\ud956\udd95\ud899\udf55\u00c1*\udb3b\ude39\u0093\ud992\uddf0": "\u00cb&8\ud9da\udd61\u0089\u00a2(vy", "\u00d5\ud8e9\uddf3\u0091\u0099\ud8ca\udc8e\u0003": null}, "\u00e3": {}, "\u0014\ud9ed\uddca\u00b3<\\\uda27\udc2d\udbb1\udf68\u00b5\u00a7": [null, false, [421978]], "9\uda32\udd7d;f\u00a9": {"\ud883\udfe1\u0006\u00d2\u00d5": "\u00b2y\u00e2\u00b0\u00b9"}, "\u00f8\u00a0": 145505, "title": "\u00b9", "id": "\udadf\uddf70YJ\u00e9/\udab5\udd6a\u0080\ud8c6\uddba\u00a9", "performances": []}' http://localhost:8082/repertory
+    curl -X DELETE http://localhost:8082/repertory/%F3%87%B7%B70YJ%C3%A9%2F%F2%BD%95%AA%C2%80%F1%81%A6%BA%C2%A9/performances/izv-029
+    
+    st replay Fdg5nU
+
+20. Test Case ID: EgFmQS
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    curl -X DELETE http://localhost:8082/plays/%C2%83L_F%F0%B4%99%BD
+    
+    st replay EgFmQS
+
+21. Test Case ID: nN8rlo
+
+- Undocumented HTTP status code
+
+    Received: 204
+    Documented: 200
+
+[204] No Content:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    curl -X DELETE http://localhost:8082/plays/%C3%BF%F1%B0%AC%AE
+    
+    st replay nN8rlo
+
+22. Test Case ID: BWuQHt
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `<!doctype html><html lang="en"><head><title>HTTP Status 400 – Bad Request</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 400 – Bad Request</h1></body></html>`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/plays
+    curl -X DELETE http://localhost:8082/plays/%F3%87%B7%B70YJ%C3%A9%2F%F2%BD%95%AA%C2%80%F1%81%A6%BA%C2%A9
+    
+    st replay BWuQHt
+
+23. Test Case ID: U49A00
+
+- Undocumented HTTP status code
+
+    Received: 204
+    Documented: 200
+
+[204] No Content:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X DELETE http://localhost:8082/performances/n%C2%90%C3%89%F3%9E%B7%86
+    
+    st replay U49A00
+
+24. Test Case ID: yQ0ahZ
+
+- Response violates schema (4 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Director:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Scenographer:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/playwright:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Play/properties/title:
+
+        {
+            "type": "string"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"id":"ul-02360","price":"1200 RSD","numberOfSeatInAuditorium":"88","ticketAgentId":"blag-03","spectatorId":"0205973804600","performance":{"id":"izv-037","auditorium":{"id":"snp-pd","title":"Pera Dobrinović","numOfSeats":400},"showtime":{"id":"291026-1930","date":"2026-10-29","time":"2026-10-29T19:30:00"},"play":{"id":"pr-25","title":null,"playwright":null,"scenographer":null,"director":null}}}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X GET http://localhost:8082/tickets/ul-02360
+    
+    st replay yQ0ahZ
+
+25. Test Case ID: Wu0kUX
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `<!doctype html><html lang="en"><head><title>HTTP Status 400 – Bad Request</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 400 – Bad Request</h1></body></html>`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X POST http://localhost:8082/repertory/%F3%87%B7%B70YJ%C3%A9%2F%F2%BD%95%AA%C2%80%F1%81%A6%BA%C2%A9/performances/izv-061
+    
+    st replay Wu0kUX
+
+26. Test Case ID: 62VKYK
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    <EMPTY>
+
+Reproduce with:
+
+    curl -X GET http://localhost:8082/tickets
+    curl -X GET http://localhost:8082/performances/izv-037
+    curl -X DELETE http://localhost:8082/performances/n%C2%90%C3%89%F3%9E%B7%86
+    
+    st replay 62VKYK
+
+=================================== SUMMARY ====================================
+
+API Operations:
+  Selected: 17/17
+  Tested: 17
+
+Test Phases:
+  ⏭  Examples
+  ❌ Coverage
+  ❌ Fuzzing
+  ❌ Stateful
+
+Failures:
+  ❌ Server error: 9
+  ❌ Response violates schema: 37
+  ❌ API rejected schema-compliant request: 6
+  ❌ JSON deserialization error: 3
+  ❌ Missing Content-Type header: 3
+  ❌ Undocumented HTTP status code: 26
+
+Test cases:
+  4203 generated, 47 found 84 unique failures, 3 skipped
+
+Reports:
+  - JUNIT: fuzz\results\ticketing\junit-20260926T193827Z.xml
+
+Seed: 42
+
+=========================== 84 failures in 1689.62s ============================

@@ -19,6 +19,9 @@ public class RepertoryService {
     }
 
     public Repertory save(Repertory repertory) {
+		// save() bi postojeci objekat sa istim ID-em tiho prepisao
+		if (repository.existsById(repertory.getId()))
+			throw new IllegalStateException("Repertoar " + repertory.getId() + " vec postoji");
         return repository.save(repertory);
     }
 

@@ -24,6 +24,9 @@ public class PlayService {
 	    }
 	    
 	    public Play create(Play p) {
+		// save() bi postojeci objekat sa istim ID-em tiho prepisao
+		if (repository.existsById(p.getId()))
+			throw new IllegalStateException("Predstava " + p.getId() + " vec postoji");
 		    return repository.save(p);
 		}
 	    

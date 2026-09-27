@@ -31,7 +31,20 @@ public class SpectatorService {
 	}
 	
 	public Spectator create(Spectator g) {
+		// save() bi postojeceg gledaoca tiho prepisao
+		if (repository.existsById(g.getJmbg()))
+			throw new IllegalStateException("Gledalac " + g.getJmbg() + " vec postoji");
+		g.setStatus(SpectatorStatus.ACTIVE);
+		g.setTicketAgent(resolveAgent(g.getTicketAgent()));
 	    return repository.save(g);
+	}
+
+	// Blagajnik iz zahtjeva mora postojati; inace bi JPA bacio gresku (500)
+	private TicketAgent resolveAgent(TicketAgent agent) {
+		if (agent == null || agent.getId() == null)
+			return null;
+		return ticketAgentRepository.findById(agent.getId())
+				.orElseThrow(() -> new IllegalArgumentException("Blagajnik " + agent.getId() + " ne postoji"));
 	}
 	
 	public Spectator updatePartial(String jmbg, Spectator update) {
@@ -47,10 +60,8 @@ public class SpectatorService {
         if (update.getPhoneNumber() != null) existing.setPhoneNumber(update.getPhoneNumber());
         if (update.getEmailAddress() != null) existing.setEmailAddress(update.getEmailAddress());
 
-        if (update.getTicketAgent() != null && update.getTicketAgent().getId() != null) {
-            Optional<TicketAgent> agentOpt = ticketAgentRepository.findById(update.getTicketAgent().getId());
-            agentOpt.ifPresent(existing::setTicketAgent);
-        }
+        if (update.getTicketAgent() != null && update.getTicketAgent().getId() != null)
+            existing.setTicketAgent(resolveAgent(update.getTicketAgent()));
 
         return repository.save(existing);
     }
@@ -58,9 +69,5 @@ public class SpectatorService {
 	public boolean existsByJmbg(String jmbg) {
 	    return repository.existsById(jmbg);
 	}
-
-    public void delete(String jmbg) {
-        repository.deleteById(jmbg);
-    }
 	
 }

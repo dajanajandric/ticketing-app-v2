@@ -25,3 +25,5 @@ Thumbs.db
 
 # k6 / lokalno pokretanje
 perf/logs/
+# Schemathesis kes
+.schemathesis/

@@ -13,13 +13,15 @@ public class PerformanceService {
 	    private PerformanceRepository repository;
 
 	 public List<PerformanceDTO> getAll() {
+		    // Nepotpuno izvodjenje (npr. staro, bez termina) preskacemo umjesto da cijela lista pukne
 		    return repository.findAll().stream()
+		            .filter(p -> p.getPlay() != null && p.getShowtime() != null && p.getShowtime().getTime() != null)
 		            .map(performance -> new PerformanceDTO(
 		                    performance.getId(),
 		                    performance.getPlay().getTitle(),
 		                    performance.getShowtime().getDate(),
 		                    performance.getShowtime().getTime().toLocalTime(),
-		                    performance.getAuditorium().getTitle()
+		                    performance.getAuditorium() != null ? performance.getAuditorium().getTitle() : null
 		            ))
 		            .collect(Collectors.toList());
 		}
@@ -30,6 +32,9 @@ public class PerformanceService {
 	    }
 	    
 	    public Performance create(Performance i) {
+		// save() bi postojeci objekat sa istim ID-em tiho prepisao
+		if (repository.existsById(i.getId()))
+			throw new IllegalStateException("Izvodjenje " + i.getId() + " vec postoji");
 		    return repository.save(i);
 		}
 	    
@@ -45,6 +50,7 @@ public class PerformanceService {
 	        List<Performance> performances = repository.findByPlayId(playId);
 
 	        return performances.stream()
+	        		.filter(p -> p.getPlay() != null && p.getShowtime() != null && p.getShowtime().getTime() != null)
 	        		.map(p -> new PerformanceDTO(
 	        			    p.getId(),
 	        			    p.getPlay().getId(),

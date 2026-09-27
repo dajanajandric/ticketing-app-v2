@@ -278,7 +278,7 @@ export default {
         setTimeout(this.resetForm, 1500);
       } catch (err) {
         console.error(err);
-        alert(err.response?.data || "Greška prilikom kupovine karte.");
+        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom kupovine karte.");
       }
     },
     resetForm() {

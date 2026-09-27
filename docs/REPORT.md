@@ -33,8 +33,6 @@ Tickets --depends on--> Ticket_agents
 Spectators --uses-----> Ticket_agents
 ```
 
-Puna vizuelna analiza (dijagram, kartice modula, before/after ispravki): https://claude.ai/code/artifact/bf619154-bc69-44b8-8a3a-20ab600b85d4
-
 **Usput pronađeno i ispravljeno:** `modules.verify()` je prijavio 2 kršenja granica — `TicketService` i `SpectatorService` su primali zavisnost iz drugog modula preko `@Autowired` na polju (field injection) umesto kroz konstruktor. Ispravljeno na constructor injection u oba slučaja.
 
 ## 3. Odluka: 2 servisa umesto 4
@@ -183,3 +181,91 @@ Propusnost: pregled ~510 → ~493 zahtjeva/s (−3%), kupovina ~54 → ~84 karte
 **Uočen problem na gateway-u.** Pod opterećenjem gateway povremeno baci `ResourceAccessException` / `NullPointerException` iz JDK `HttpClient`-a (1 put u preliminarnom mjerenju, 2 puta tokom zagrijavanja, od ukupno > 100.000 zahtjeva). Klijent tada dobije 500. Moguće rješenje: prebaciti Spring Cloud Gateway MVC na drugi HTTP klijent (npr. Apache HttpClient 5) ili dodati retry filter na gateway-u za idempotentne GET zahtjeve.
 
 **Ograničenja.** Sve radi na jednom računaru (servisi se ne takmiče za mrežu, ali se takmiče za CPU), mjerenje traje kratko (3 × 60 s po scenariju), a opterećenje je umjereno (20 + 5 korisnika). Rezultati pokazuju trend, ne apsolutne brojke za produkciju.
+
+## 10. Fuzz testiranje
+
+**Alat.** [Schemathesis](https://schemathesis.readthedocs.io) 4.28: iz OpenAPI opisa API-ja (`/v3/api-docs`, dobijen dodavanjem `springdoc-openapi-starter-webmvc-api` u monolit i oba servisa) automatski generiše hiljade zahtjeva: pogrešne tipove, prazna i `null` polja, ogromne brojeve, kontrolne i Unicode znakove, neispravan JSON, nepostojeće ID-eve, kao i sekvence poziva (stateful: napravi → pročitaj → obriši). Za svaki odgovor provjerava da li je server pukao (5xx), da li je prihvatio neispravan ulaz i da li odgovor odgovara opisu API-ja. Pokretanje: `fuzz/run.sh monolith|users|ticketing`. Skripta prije svakog pokretanja vraća baze iz backupa, jer fuzzer šalje i POST/PATCH/DELETE zahtjeve. Isti seed (42) i isti broj primjera (100 po operaciji) za sve mete.
+
+**Rezultati (prvi krug, prije ispravki):**
+
+| Meta | Operacija | Generisano zahtjeva | Jedinstvenih grešaka | od toga 5xx | Trajanje |
+|---|---|---|---|---|---|
+| monolit | 25 | 2881 | 54 | 10 | 6,8 min |
+| users-service | 8 | 828 | 28 | 2 | 22 s |
+| ticketing-service | 17 | 4203 | 84 | 9 | 28 min |
+
+Najveći dio „grešaka“ (`Undocumented HTTP status code`, `Response violates schema`) nisu kvarovi. springdoc ne zna da endpoint vraća 404/400, niti da polje može biti `null`. Stvarni problemi robusnosti su odgovori 5xx na neispravan ulaz.
+
+**Uzroci 5xx odgovora** (isti u monolitu i servisima, jer je kod prenesen):
+- **Nema validacije ulaza.** POST bez `id` → `JpaSystemException: Identifier ... must be manually assigned` (500). Karta bez izvođenja → `NullPointerException` (500). Referenca na nepostojeći entitet → `TransientPropertyValueException` (500). `null` u obaveznoj koloni ili predugačak string (monolit, `varchar(20)`) → greška baze (500).
+- **NUL znak (`\u0000`) u stringu** → Postgres odbija upis (`invalid byte sequence for encoding "UTF8": 0x00`) → 500.
+- **Brisanje entiteta koji je u upotrebi** (predstava sa izvođenjima, gledalac sa kartama u monolitu) → povreda stranog ključa → 500 umjesto 409 Conflict.
+
+**Nalazi specifični za mikroservise:**
+1. **Neispravan ulaz otvara circuit breaker i blokira prodaju (potvrđeno ručno).** `UsersServiceClient` sastavlja URL spajanjem stringova (`baseUrl + "/ticket-agents/" + id`), a `RestTemplate` taj string tumači kao URI šablon. ID koji sadrži `{` baca `IllegalArgumentException` prije nego što se ikakav poziv pošalje. Circuit breaker to broji kao kvar users-service-a. Poslije 5 takvih zahtjeva kolo se otvara i **10 sekundi svaka kupovina karte, i ispravna, dobija 503** „users-service nedostupan“. Svako ko može poslati zahtjev može ovako stalno blokirati prodaju. U monolitu ovaj problem ne postoji, jer nema mrežnog poziva.
+2. **Brisanje gledaoca ne provjerava karte.** U monolitu `DELETE /spectators/{jmbg}` za gledaoca sa kartama puca na stranom ključu (500, ali podaci ostaju ispravni). U users-service brisanje uspijeva (204), a njegove karte u `ticketing_db` ostaju „siročad“ sa JMBG-om koji više ne postoji. Posljedica podjele baza: referencijalni integritet više ne čuva baza.
+3. **Sporo pod lošim ulazom.** Ticketing-service je trajao 28 min naspram 7 min monolita. Svaki zahtjev sa neispravnim ID-em gledaoca/blagajnika prolazi kroz retry (3 pokušaja × 300 ms) kad users-service vrati 5xx.
+
+**Sigurnosni nalaz (i u monolitu):** `GET /ticket-agents` vraća lozinke blagajnika u čistom tekstu.
+
+## 11. Ispravke poslije fuzz testiranja i saga brisanja gledaoca
+
+Ispravljeni su **samo servisi**. Monolit ostaje nepromijenjen kao polazna tačka, pa se u drugom krugu fuzzinga vidi razlika.
+
+### 11.1 Ispravke robusnosti (oba servisa)
+- **Provjera ulaza (Bean Validation).** Entiteti koji stižu u tijelu zahtjeva imaju pravila: obavezna polja pri kreiranju (validaciona grupa `OnCreate`, pa PATCH i dalje dozvoljava djelimične izmjene), maksimalne dužine, JMBG od tačno 13 cifara, ID-evi samo od slova, cifara i `. _ -`, i zabrana kontrolnih znakova (npr. NUL, koji Postgres odbija). Loš ulaz dobija **400 sa spiskom grešaka** prije nego što stigne do baze.
+- **`ControlCharacterFilter`** odbija putanje sa kontrolnim znakovima (npr. `/spectators/%00`) sa 400.
+- **`GlobalExceptionHandler`** (`@RestControllerAdvice`): povreda stranog ključa (brisanje predstave koja ima izvođenja) → **409 Conflict**, a referenca na nepostojeći objekat → **400**. Ranije je oboje bilo 500.
+- **Kreiranje više ne prepisuje postojeće objekte.** `save()` je za postojeći ID tiho radio izmjenu, a sada POST sa zauzetim ID-em vraća 409. Kupovina provjerava i da izvođenje postoji i da je broj mjesta u opsegu sale.
+- `GET /plays/{id}` i `GET /performances/{id}` za nepostojeći ID vraćaju 404, a ne prazan odgovor 200.
+- **Lozinke blagajnika** se više ne vraćaju u odgovorima (`@JsonProperty(access = WRITE_ONLY)`).
+
+### 11.2 Circuit breaker više ne reaguje na loš ulaz
+`UsersServiceClient`: (1) ID koji ne odgovara formatu se odbija bez mrežnog poziva, (2) ID se prosljeđuje kao parametar URI šablona (`/ticket-agents/{id}`), pa se ispravno kodira, (3) circuit breaker broji samo `ResourceAccessException` (timeout, odbijena konekcija) i `HttpServerErrorException` (5xx) (`record-exceptions`), (4) fallback metode hvataju samo te izuzetke i `CallNotPermittedException`. Provjereno ručno: 7 zahtjeva sa `{x}` kao ID-em blagajnika dobija 400, a ispravna kupovina odmah poslije prolazi (200). Prije ispravke kolo bi se otvorilo i kupovina bi dobila 503.
+
+### 11.3 Saga brisanja gledaoca (koreografija, RabbitMQ)
+**Problem** (fuzz nalaz 2): users-service je brisao gledaoca, a njegove karte su u `ticketing_db` ostajale bez vlasnika. Pošto su baze odvojene, strani ključ više ne može da spriječi brisanje.
+
+**Rješenje: saga sa koreografijom.** Nijedan servis ne upravlja drugim. Svaki objavljuje događaje na zajednički RabbitMQ topic exchange `pozoriste.events` i reaguje na tuđe:
+
+```
+klijent --DELETE /spectators/{jmbg}--> users-service
+    users-service:      gledalac -> DELETION_PENDING, objavi spectator.deletion.requested   (odgovor 202 Accepted)
+    ticketing-service:  ima li gledalac karte za izvođenja koja još nisu održana?
+        da -> objavi spectator.deletion.rejected
+                users-service: kompenzacija, gledalac -> ACTIVE
+        ne -> karte za prošla izvođenja anonimizuj (spectatorId = NULL), objavi spectator.deletion.approved
+                users-service: obriši gledaoca
+```
+
+- **Semantičko zaključavanje:** dok traje saga (`DELETION_PENDING`), ticketing-service gledaocu ne prodaje nove karte (409). Inače bi karta kupljena usred sage ostala bez vlasnika.
+- **Pravilo za karte** (odluka): brisanje se odbija ako postoji karta za buduće izvođenje. Karte za prošla izvođenja se anonimizuju, pa istorija prodaje ostaje.
+- **Trajni redovi** (`durable`): ako ticketing-service ne radi, zahtjev čeka u redu i saga se završi kad se servis vrati. Provjereno ručno: gledalac je ostao u `DELETION_PENDING` dok ticketing nije radio, a obrisan je odmah po njegovom pokretanju.
+- **Ako RabbitMQ ne radi**, objava baci izuzetak i transakcija se poništi (gledalac ostaje ACTIVE), a klijent dobija 503.
+- **Klase događaja** (`Requested`, `Approved`, `Rejected`) postoje kao kopije u oba servisa, bez zajedničke biblioteke, da servisi ostanu nezavisni. JSON konverter tip određuje iz parametra listener-a, a ne iz imena Java klase pošiljaoca.
+- **Frontend** poslije 202 kratko čeka ishod (gledalac nestane → obrisan, vrati se u ACTIVE → odbijeno) i to javlja korisniku.
+
+Ručno testirano: gledalac bez karata → obrisan; gledalac sa kartom samo za prošlo izvođenje → karta anonimizovana, gledalac obrisan; gledalac sa 22 buduće karte → odbijeno, vraćen u ACTIVE.
+
+**Poznata ograničenja.** Objava događaja i upis u bazu nisu atomični: ako commit padne poslije uspješne objave, događaj je već poslat. Pravo rješenje je *transactional outbox* (događaj se upisuje u tabelu u istoj transakciji, a zaseban proces ga objavljuje). Za obim ovog projekta to nije urađeno. Listener-i su idempotentni u smislu da ponovljeni `approved`/`rejected` za gledaoca koji više nije u `DELETION_PENDING` ne radi ništa.
+
+**Pokretanje:** RabbitMQ je dodat u `perf/start-all.sh` (Docker, `-u rabbitmq` jer na Docker Desktopu za Windows inače pada sa `erlang.cookie: eacces`). Web konzola: http://localhost:15672 (guest/guest). Servisi čitaju `RABBITMQ_HOST` i ostale varijable, pa rade i u Dockeru.
+
+### 11.4 Drugi krug fuzz testiranja
+
+Isti alat, seed i broj primjera kao u prvom krugu (sekcija 10). Monolit nije mijenjan, pa za njega važe rezultati prvog kruga.
+
+| Meta | 5xx (1. krug → 2. krug) | Jedinstvenih nalaza | Trajanje |
+|---|---|---|---|
+| monolit (nepromijenjen) | 10 | 54 | 6,8 min |
+| users-service | 2 → **0** | 28 → 17 | 22 s → 1,5 min |
+| ticketing-service | 9 → **0** | 84 → 43 | 28 min → 6 min |
+
+Drugi krug je našao još jedan pravi bug, koji je ispravljen prije završnog pokretanja: izvođenje se moglo napraviti bez predstave, sale i termina. Poslije takvog upisa `GET /performances` je pucao (500) **za sve korisnike**, jer lista čita naziv predstave. Sada su ta tri polja obavezna pri kreiranju, a lista preskače nepotpune redove.
+
+Preostali nalazi nisu kvarovi robusnosti:
+- `Undocumented HTTP status code` i `Response violates schema`: springdoc u OpenAPI opisu ne navodi 400/404/409 odgovore niti `null` polja.
+- `API rejected schema-compliant request`: zahtjev je formalno ispravan, ali referencira nešto što ne postoji (npr. izvođenje `pr-01`), pa je 400 ispravan odgovor. OpenAPI šema ne može da izrazi „ID mora postojati u bazi“.
+- `POST /repertory/{id}/performances/{id}` vraća prazan 200 bez `Content-Type`. Kozmetički nalaz, ponašanje preuzeto iz monolita.
+
+Users-service je u drugom krugu sporiji (22 s → 1,5 min) zato što fuzzer sada dolazi dublje: zahtjevi prolaze validaciju, a `DELETE /spectators` pokreće sagu. Ticketing je brži (28 → 6 min) jer loši ID-evi više ne prolaze kroz retry prema users-service-u.

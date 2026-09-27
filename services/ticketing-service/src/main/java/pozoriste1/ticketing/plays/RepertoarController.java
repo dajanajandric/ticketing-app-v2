@@ -1,5 +1,7 @@
 package pozoriste1.ticketing.plays;
 
+import pozoriste1.ticketing.web.OnCreate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,7 @@ public class RepertoarController {
     }
 
     @PostMapping
-    public ResponseEntity<Repertory> createRepertory(@RequestBody Repertory repertory) {
+    public ResponseEntity<Repertory> createRepertory(@Validated(OnCreate.class) @RequestBody Repertory repertory) {
         Repertory saved = service.save(repertory);
         return ResponseEntity.ok(saved);
     }

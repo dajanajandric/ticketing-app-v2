@@ -1,5 +1,7 @@
 package pozoriste1.users.ticket_agents;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -16,7 +18,9 @@ public class TicketAgent {
     @Column(name = "radnik_username")
     private String username;
 
+    // Lozinka se nikad ne vraca u odgovoru (fuzz testiranje: GET /ticket-agents ju je otkrivao)
     @Column(name = "radnik_password") 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
 	public String getId() {

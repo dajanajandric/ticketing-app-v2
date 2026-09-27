@@ -6,24 +6,36 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import pozoriste1.ticketing.web.InputRules;
+import pozoriste1.ticketing.web.OnCreate;
+
 @Entity
 @Table(name = "teatar_izvodjenje")
 public class Performance {
 
     @Id
     @Column(name = "izv_id")
+	@NotBlank(groups = OnCreate.class)
+	@Pattern(regexp = InputRules.SAFE_ID, message = "dozvoljena su slova, cifre, . _ - (do 50)")
     private String id;
 
     @ManyToOne
     @JoinColumn(name = "sala_sala_id")
+    @NotNull(groups = OnCreate.class)
     private Auditorium auditorium;
 
     @ManyToOne
     @JoinColumn(name = "termin_termin_id")
+    @NotNull(groups = OnCreate.class)
     private Showtime showtime;
 
     @ManyToOne
+    // Bez sale, termina i predstave izvodjenje obara GET /performances (fuzz nalaz, 2. krug)
     @JoinColumn(name = "predstava_predstava_id")
+    @NotNull(groups = OnCreate.class)
     private Play play;
     
     @ManyToMany(mappedBy = "performances")

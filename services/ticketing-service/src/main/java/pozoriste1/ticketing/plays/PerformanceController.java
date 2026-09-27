@@ -1,5 +1,7 @@
 package pozoriste1.ticketing.plays;
 
+import pozoriste1.ticketing.web.OnCreate;
+import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,13 @@ public class PerformanceController {
     }
 	
 	@GetMapping("/{id}")
-    public Performance getPerformanceById(@PathVariable String id) {
-    	return service.getById(id);
+    public ResponseEntity<Performance> getPerformanceById(@PathVariable String id) {
+    	Performance performance = service.getById(id);
+    	return performance == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(performance);
     }
 	
 	@PostMapping
-    public ResponseEntity<Performance> createPerformance(@RequestBody Performance performance) {
+    public ResponseEntity<Performance> createPerformance(@Validated(OnCreate.class) @RequestBody Performance performance) {
         Performance saved = service.create(performance);
         return ResponseEntity.ok(saved);
     }

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites errors="0" failures="7" skipped="0" tests="9" time="70.417278">
+  <testsuite name="schemathesis" hostname="DESKTOP-G30OBRM" errors="0" failures="7" skipped="0" tests="9" time="70.417278">
+    <testcase name="POST /ticket-agents/login" time="1.172316">
+      <failure type="failure">1. Test Case ID: DjWSvi
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-27T11:38:42.519+00:00","status":400,"error":"Bad Request","path":"/ticket-agents/login"}`
+
+Reproduce with:
+
+    curl -X POST 'http://localhost:8081/ticket-agents/login?username='</failure>
+      <failure type="failure">1. Test Case ID: GovVDa
+
+- Undocumented HTTP status code
+
+    Received: 401
+    Documented: 200
+
+[401] Unauthorized:
+
+    `Invalid username or password`
+
+Reproduce with:
+
+    curl -X POST 'http://localhost:8081/ticket-agents/login?password=%5BFiltered%5D&amp;username=tamara'</failure>
+    </testcase>
+    <testcase name="GET /spectators" time="0.247673" />
+    <testcase name="GET /spectators/{jmbg}" time="0.105034">
+      <failure type="failure">1. Test Case ID: yDlT1f
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    &lt;EMPTY&gt;
+
+Reproduce with:
+
+    curl -X GET http://localhost:8081/spectators/0</failure>
+    </testcase>
+    <testcase name="GET /ticket-agents" time="0.100099" />
+    <testcase name="DELETE /spectators/{jmbg}" time="0.038519">
+      <failure type="failure">1. Test Case ID: Exeog6
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    &lt;EMPTY&gt;
+
+Reproduce with:
+
+    curl -X DELETE http://localhost:8081/spectators/0</failure>
+    </testcase>
+    <testcase name="POST /spectators" time="0.533603">
+      <failure type="failure">1. Test Case ID: zC4x1P
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-27T11:38:43.177+00:00","status":400,"error":"Bad Request","path":"/spectators"}`
+
+Reproduce with:
+
+    curl -X POST http://localhost:8081/spectators</failure>
+      <failure type="failure">1. Test Case ID: R4wGbW
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+
+[400] Bad Request:
+
+    `{"status":400,"message":"Neispravni podaci u zahtjevu","details":["firstName: must not be blank","lastName: must not be blank"]}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"firstName": "", "jmbg": "0904964800711", "lastName": ""}' http://localhost:8081/spectators</failure>
+    </testcase>
+    <testcase name="GET /ticket-agents/{id}" time="0.243128">
+      <failure type="failure">1. Test Case ID: YoNIof
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    &lt;EMPTY&gt;
+
+Reproduce with:
+
+    curl -X GET http://localhost:8081/ticket-agents/%F1%B5%8F%B1w</failure>
+    </testcase>
+    <testcase name="PATCH /spectators/{jmbg}" time="0.113070">
+      <failure type="failure">1. Test Case ID: zddKuL
+
+- Undocumented HTTP status code
+
+    Received: 400
+    Documented: 200
+
+[400] Bad Request:
+
+    `{"timestamp":"2026-09-27T11:38:43.343+00:00","status":400,"error":"Bad Request","path":"/spectators/0"}`
+
+Reproduce with:
+
+    curl -X PATCH http://localhost:8081/spectators/0</failure>
+      <failure type="failure">1. Test Case ID: bvM6NS
+
+- Undocumented HTTP status code
+
+    Received: 404
+    Documented: 200
+
+[404] Not Found:
+
+    &lt;EMPTY&gt;
+
+Reproduce with:
+
+    curl -X PATCH -H 'Content-Type: application/json' -d '{"firstName": "", "jmbg": "0904964800711", "lastName": ""}' http://localhost:8081/spectators/0</failure>
+    </testcase>
+    <testcase name="Stateful tests" time="67.863836">
+      <failure type="failure">1. Test Case ID: pszEKZ
+
+- Response violates schema (3 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/TicketAgent:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "not": {}
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Spectator/properties/emailAddress:
+
+        {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^[^\\x00-\\x1F\\x7F-\\x9F]*$"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Spectator/properties/phoneNumber:
+
+        {
+            "type": "string",
+            "pattern": "^\\+?[0-9 /-]{6,20}$"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `{"jmbg":"7347490232463","firstName":"¦ÙfĠØ3_/fİ","lastName":"BÓH\uDAD1\uDFC3X¤\uD9B9\uDD8Dč\uD980\uDFA4\uDBCA\uDCD6¨½ī¾^ëËU","phoneNumber":null,"emailAddress":null,"status":"ACTIVE","ticketAgent":null}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"jmbg": "7347490232463", "lastName": "B\u00d3H\udad1\udfc3X\u00a4\ud9b9\udd8d\u010d\ud980\udfa4\udbca\udcd6\u00a8\u00bd\u012b\u00be^\u00eb\u00cbU", "firstName": "\u00a6\u00d9f\u0120\u00d83_/f\u0130"}' http://localhost:8081/spectators</failure>
+      <failure type="failure">1. Test Case ID: rUz1m4
+
+- Undocumented HTTP status code
+
+    Received: 409
+    Documented: 200
+
+[409] Conflict:
+
+    `{"status":409,"message":"Gledalac 7347490232463 vec postoji","details":[]}`
+
+Reproduce with:
+
+    curl -X POST -H 'Content-Type: application/json' -d '{"jmbg": "7347490232463", "lastName": "B\u00d3H\udad1\udfc3X\u00a4\ud9b9\udd8d\u010d\ud980\udfa4\udbca\udcd6\u00a8\u00bd\u012b\u00be^\u00eb\u00cbU", "firstName": "\u00a6\u00d9f\u0120\u00d83_/f\u0130"}' http://localhost:8081/spectators</failure>
+      <failure type="failure">1. Test Case ID: alEINb
+
+- Response violates schema (3 violations)
+
+    null is not of type "object"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/TicketAgent:
+
+        {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "not": {}
+                }
+            }
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Spectator/properties/emailAddress:
+
+        {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0,
+            "pattern": "^[^\\x00-\\x1F\\x7F-\\x9F]*$"
+        }
+
+    Value:
+
+        null
+
+    null is not of type "string"
+
+    Validated against the response schema for status code 200.
+
+    Schema at /components/schemas/Spectator/properties/phoneNumber:
+
+        {
+            "type": "string",
+            "pattern": "^\\+?[0-9 /-]{6,20}$"
+        }
+
+    Value:
+
+        null
+
+[200] OK:
+
+    `[{"jmbg":"0904964800711","firstName":"Marko","lastName":"Živković","phoneNumber":"0652719583","emailAddress":"marko.zivkovic1@example.com","status":"ACTIVE","ticketAgent":{"id":"blag-05","username":"tamara"}},{"jmbg":"0102963806199","firstName":"Mina","lastName":"Petrović","phoneNumber":"0641445199","emailAddress":"mina.petrovic2@example.com","status":"ACTIVE","ticketAgent":{"id":"blag-05","username":"tamara"}},{"jmbg":"1510967809146","firstName":"Mina","lastName":"Stanković","phoneNumber":"0661109031","ema // Output truncated...`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8081/spectators</failure>
+      <failure type="failure">1. Test Case ID: Ov7AIe
+
+- API rejected schema-compliant request
+
+    Valid data should have been accepted
+    Expected: 2xx, 401, 403, 404, 409, 429, 5xx
+    Hint: The request body contains 1 additional property not defined in the schema (``). The server likely rejects unexpected fields. Add `additionalProperties: false` to your schema to prevent this.
+
+[400] Bad Request:
+
+    `{"status":400,"message":"Neispravni podaci u zahtjevu","details":["emailAddress: must be a well-formed email address"]}`
+
+Reproduce with:
+
+    curl -X GET http://localhost:8081/spectators
+    curl -X PATCH -H 'Content-Type: application/json' -d '{"\u009e\u009a": {"\u00d4\ud9a3\udf671\u00b5\udb92\ude3b%\uda80\udf72": -85}, "jmbg": "1206963803436", "phoneNumber": "0652166941", "firstName": "\udb37\udfea\u00c8?\u2026\ud9e5\udd3f\u00c0\u023a\u00be\u00c0Wo\u00e7\u011e9\ud95b\udec4\ud8b1\udfb8\u011c", "lastName": "W\u0105", "emailAddress": "5-\ud956\udcf0\u00ff"}' http://localhost:8081/spectators/_%C3%A8%C2%83%3A</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

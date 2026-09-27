@@ -1,5 +1,7 @@
 package pozoriste1.ticketing.plays;
 
+import pozoriste1.ticketing.web.OnCreate;
+import org.springframework.validation.annotation.Validated;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,13 @@ public class PlayController {
     }
 	
 	@GetMapping("/{id}")
-    public Play getPlayById(@PathVariable String id) {
-    	return service.getById(id);
+    public ResponseEntity<Play> getPlayById(@PathVariable String id) {
+    	Play play = service.getById(id);
+    	return play == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(play);
     }
 	
 	@PostMapping
-    public ResponseEntity<Play> createPlay(@RequestBody Play play) {
+    public ResponseEntity<Play> createPlay(@Validated(OnCreate.class) @RequestBody Play play) {
         Play saved = service.create(play);
         return ResponseEntity.ok(saved);
     }

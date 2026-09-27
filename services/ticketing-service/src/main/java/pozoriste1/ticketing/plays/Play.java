@@ -7,18 +7,31 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import pozoriste1.ticketing.web.InputRules;
+import pozoriste1.ticketing.web.OnCreate;
+
 @Entity
 @Table(name = "teatar_predstava")
 
 public class Play {
 	@Id
     @Column(name = "predstava_id")
+	@NotBlank(groups = OnCreate.class)
+	@Pattern(regexp = InputRules.SAFE_ID, message = "dozvoljena su slova, cifre, . _ - (do 50)")
     private String id;
 	
 	@Column(name = "predstava_naziv")
+	@NotBlank(groups = OnCreate.class)
+	@Size(max = 50)
+	@Pattern(regexp = InputRules.NO_CONTROL_CHARS, message = "sadrzi nedozvoljene znakove")
 	private String title;
 	
 	@Column(name = "predstava_autorteksta")
+	@Size(max = 50)
+	@Pattern(regexp = InputRules.NO_CONTROL_CHARS, message = "sadrzi nedozvoljene znakove")
 	private String playwright;
 	
 	@ManyToOne
