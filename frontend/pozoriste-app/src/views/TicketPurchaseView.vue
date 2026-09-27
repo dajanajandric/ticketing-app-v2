@@ -264,6 +264,13 @@ export default {
     },
     async handlePurchase() {
       if (!this.canPurchase) return;
+      const ticketAgentId = localStorage.getItem("ticketAgentId");
+      if (!ticketAgentId) {
+        alert(
+          "Prijavite se ponovo - nije poznato koji blagajnik prodaje kartu."
+        );
+        return;
+      }
       try {
         const ticketData = {
           id: this.generateTicketId(),
@@ -271,14 +278,20 @@ export default {
           numberOfSeatInAuditorium: this.selectedSeat.toString(),
           spectatorId: this.selectedSpectator,
           performance: { id: this.selectedPerformance },
-          ticketAgentId: "r1",
+          ticketAgentId,
         };
         await axios.post(`${API_BASE_URL}/tickets`, ticketData);
         this.purchaseSuccess = true;
         setTimeout(this.resetForm, 1500);
       } catch (err) {
         console.error(err);
-        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom kupovine karte.");
+        alert(
+          [err.response?.data?.message, ...(err.response?.data?.details || [])]
+            .filter(Boolean)
+            .join("\n") ||
+            err.response?.data ||
+            "Greška prilikom kupovine karte."
+        );
       }
     },
     resetForm() {

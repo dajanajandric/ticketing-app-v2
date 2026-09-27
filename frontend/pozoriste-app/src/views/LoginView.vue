@@ -92,6 +92,10 @@ export default {
         if (response.status === 200) {
           this.error = null;
           localStorage.setItem("username", this.username);
+          // ID prijavljenog blagajnika - šalje se pri kupovini karte i dodavanju gledaoca
+          const agents = await axios.get(`${API_BASE_URL}/ticket-agents`);
+          const agent = agents.data.find((a) => a.username === this.username);
+          if (agent) localStorage.setItem("ticketAgentId", agent.id);
           this.$router.push("/purchase");
         }
       } catch (err) {

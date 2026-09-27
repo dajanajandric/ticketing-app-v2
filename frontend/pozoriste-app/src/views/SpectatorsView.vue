@@ -332,7 +332,7 @@ export default {
           lastName: this.newSpectator.lastName,
           phoneNumber: this.newSpectator.phoneNumber || null,
           emailAddress: this.newSpectator.emailAddress || null,
-          ticketAgent: { id: "r1" },
+          ticketAgent: { id: localStorage.getItem("ticketAgentId") },
         };
         await axios.post(`${API_BASE_URL}/spectators`, spectatorData);
         this.resetForm();
@@ -340,7 +340,13 @@ export default {
         alert("Gledalac je uspešno dodat!");
       } catch (err) {
         console.error("Greška prilikom dodavanja gledaoca:", err);
-        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom dodavanja gledaoca.");
+        alert(
+          [err.response?.data?.message, ...(err.response?.data?.details || [])]
+            .filter(Boolean)
+            .join("\n") ||
+            err.response?.data ||
+            "Greška prilikom dodavanja gledaoca."
+        );
       }
     },
     editSpectator(spectator) {
@@ -366,7 +372,13 @@ export default {
         alert("Gledalac je uspešno ažuriran!");
       } catch (err) {
         console.error("Greška prilikom ažuriranja gledaoca:", err);
-        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom ažuriranja gledaoca.");
+        alert(
+          [err.response?.data?.message, ...(err.response?.data?.details || [])]
+            .filter(Boolean)
+            .join("\n") ||
+            err.response?.data ||
+            "Greška prilikom ažuriranja gledaoca."
+        );
       }
     },
     async deleteSpectator(jmbg) {
@@ -379,11 +391,23 @@ export default {
         const outcome = await this.waitForDeletion(jmbg);
         await this.fetchSpectators();
         if (outcome === "deleted") alert("Gledalac je uspešno obrisan!");
-        else if (outcome === "rejected") alert("Brisanje je odbijeno: gledalac ima karte za predstave koje još nisu odigrane.");
-        else alert("Zahtev za brisanje je primljen i još se obrađuje. Osvežite listu za par trenutaka.");
+        else if (outcome === "rejected")
+          alert(
+            "Brisanje je odbijeno: gledalac ima karte za predstave koje još nisu odigrane."
+          );
+        else
+          alert(
+            "Zahtev za brisanje je primljen i još se obrađuje. Osvežite listu za par trenutaka."
+          );
       } catch (err) {
         console.error("Greška prilikom brisanja gledaoca:", err);
-        alert([err.response?.data?.message, ...(err.response?.data?.details || [])].filter(Boolean).join("\n") || err.response?.data || "Greška prilikom brisanja gledaoca.");
+        alert(
+          [err.response?.data?.message, ...(err.response?.data?.details || [])]
+            .filter(Boolean)
+            .join("\n") ||
+            err.response?.data ||
+            "Greška prilikom brisanja gledaoca."
+        );
       }
     },
     async waitForDeletion(jmbg) {
